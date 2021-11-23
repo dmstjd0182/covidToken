@@ -18,10 +18,8 @@ contract Covid is Ownable {
     uint256 public constant INFECT_PRICE = 0.02 ether;
     //최대 전염 수
     uint256 public constant MAX_INFECT_NUMBER = 3;
-    //1주일 (초)
-    uint256 public constant WEEK_TO_SECONDS = 604800;
     //전염 가능 주
-    uint256 public constant INFECTIOUS_WEEK = 2;
+    uint256 public constant INFECTIOUS_WEEK = 2 weeks;
 
     uint256 public totalSupply = INITIAL_SUPPLY;
     uint256 public rewardPool = 0;  //wei
@@ -104,7 +102,7 @@ contract Covid is Ownable {
     function infectTo(address _to) payable external whenCallerIsInfected returns (bool) {
         require(mintingPaused == false, "TotalSupply is already over.");
         UserInfo storage user = userInfo[msg.sender];
-        require(user.time.add(INFECTIOUS_WEEK * WEEK_TO_SECONDS) > block.timestamp, "You are not infectious anymore.");
+        require(block.timestamp < user.time.add(INFECTIOUS_WEEK), "You are not infectious anymore.");
         require(user.infectingCount < MAX_INFECT_NUMBER, "You already infected 3 people.");
         require(msg.value >= INFECT_PRICE, "Insufficient price.");
         require(_to != address(0), "Infect to Zero Address.");
