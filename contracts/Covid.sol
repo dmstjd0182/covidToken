@@ -20,6 +20,8 @@ contract Covid is Ownable {
     uint256 public constant MAX_INFECT_NUMBER = 3;
     //1주일 (초)
     uint256 public constant WEEK_TO_SECONDS = 604800;
+    //전염 가능 주
+    uint256 public constant INFECTIOUS_WEEK = 2;
 
     uint256 public totalSupply = INITIAL_SUPPLY;
     uint256 public rewardPool = 0;  //wei
@@ -65,14 +67,36 @@ contract Covid is Ownable {
         return INITIAL_SUPPLY;
     }
 
-    constructor() {
-        userInfo[msg.sender].lastBalance = INITIAL_SUPPLY;
-        userInfo[msg.sender].time = block.timestamp;
-        userInfo[msg.sender].isInfected = true;
-        userInfo[msg.sender].canClaimReward = true;
+    function getTotalSupply() external view returns (uint256) {
+        return totalSupply;
     }
 
-    function balanceOf(address user) external view returns (uint256 balance) {
+    function getRewardPool() external view returns (uint256) {
+        return rewardPool;
+    }
+
+    //wei
+    function getSwapPoolETH() external view returns (uint256) {
+        return address(Pool_instance).balance;
+    }
+
+    //CVDT
+    function getSwapPoolBalance() external view returns (uint256) {
+        return balanceOf(address(Pool_instance));
+    }
+
+    constructor() {
+        userInfo[msg.sender] = UserInfo (
+            INITIAL_SUPPLY,
+            block.timestamp,
+            0,
+            true,
+            true
+        );
+    }
+
+    //CVDT 토큰 잔고
+    function balanceOf(address user) public view returns (uint256 balance) {
         return userInfo[user].lastBalance;
     }
 
@@ -80,17 +104,20 @@ contract Covid is Ownable {
     function infectTo(address _to) payable external whenCallerIsInfected returns (bool) {
         require(mintingPaused == false, "TotalSupply is already over.");
         UserInfo storage user = userInfo[msg.sender];
-        require(user.time.add(2*WEEK_TO_SECONDS) > block.timestamp, "You were infected over 2 weeks ago.");
+        require(user.time.add(INFECTIOUS_WEEK * WEEK_TO_SECONDS) > block.timestamp, "You are not infectious anymore.");
         require(user.infectingCount < MAX_INFECT_NUMBER, "You already infected 3 people.");
         require(msg.value >= INFECT_PRICE, "Insufficient price.");
         require(_to != address(0), "Infect to Zero Address.");
         require(userInfo[_to].isInfected == false, "That address was already infected.");
 
         //감염자 정보 등록
-        userInfo[_to].lastBalance = 1 * 10**uint256(DECIMALS);
-        userInfo[_to].time = block.timestamp;
-        userInfo[_to].isInfected = true;
-        userInfo[_to].canClaimReward = true;
+        userInfo[_to] = UserInfo(
+            1 * 10**uint256(DECIMALS),
+            block.timestamp,
+            0,
+            true,
+            true
+        );
 
         //비용 처리
         _calPrice(msg.value);
