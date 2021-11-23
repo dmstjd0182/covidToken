@@ -1,0 +1,25 @@
+{
+  "name": "covidtoken",
+  "version": "1.0.0",
+  "description": "covidtoken",
+  "main": "truffle-config.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dmstjd0182/covid_token.git"
+  },
+  "author": "dmstjd0182",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/dmstjd0182/covid_token/issues"
+  },
+  "homepage": "https://github.com/dmstjd0182/covid_token#readme",
+  "dependencies": {
+    "@openzeppelin/contracts": "^4.3.3"
+  }
+}
