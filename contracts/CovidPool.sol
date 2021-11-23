@@ -10,7 +10,7 @@ contract CovidPool {
 
 
 
-    function () payable external {}
+    receive () payable external {}
 
     function swapToEth() external {
         

@@ -2,11 +2,12 @@ pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
-
-
+import "./CovidPool.sol";
 
 contract Covid is Ownable {
     using SafeMath for uint256;
+
+    CovidPool public Pool_instance = new CovidPool();
 
     string public constant NAME = "Covid";
     string public constant SYMBOL = "CVDT";
@@ -15,10 +16,10 @@ contract Covid is Ownable {
     uint256 public constant INITIAL_SUPPLY = 10000 * 10**uint256(DECIMALS);
     //전염(발행)에 드는 비용
     uint256 public constant INFECT_PRICE = 0.02 ether;
-    //Swap Pool 주소(풀 배포 후 수정)
-    address payable public constant POOL_ADDRESS = address(0);
     //최대 전염 수
     uint256 public constant MAX_INFECT_NUMBER = 3;
+    //1주일 (초)
+    uint256 public constant WEEK_TO_SECONDS = 604800;
 
     uint256 public totalSupply = INITIAL_SUPPLY;
     uint256 public rewardPool = 0;  //wei
@@ -66,6 +67,9 @@ contract Covid is Ownable {
 
     constructor() {
         userInfo[msg.sender].lastBalance = INITIAL_SUPPLY;
+        userInfo[msg.sender].time = block.timestamp;
+        userInfo[msg.sender].isInfected = true;
+        userInfo[msg.sender].canClaimReward = true;
     }
 
     function balanceOf(address user) external view returns (uint256 balance) {
@@ -73,10 +77,10 @@ contract Covid is Ownable {
     }
 
     //전염시키기
-    function infectTo(address _to) external whenCallerIsInfected returns (bool) {
+    function infectTo(address _to) payable external whenCallerIsInfected returns (bool) {
         require(mintingPaused == false, "TotalSupply is already over.");
         UserInfo storage user = userInfo[msg.sender];
-        require(user.time.add(2*604800) > block.timestamp, "You were infected over 2 weeks ago.");
+        require(user.time.add(2*WEEK_TO_SECONDS) > block.timestamp, "You were infected over 2 weeks ago.");
         require(user.infectingCount < MAX_INFECT_NUMBER, "You already infected 3 people.");
         require(msg.value >= INFECT_PRICE, "Insufficient price.");
         require(_to != address(0), "Infect to Zero Address.");
@@ -108,8 +112,8 @@ contract Covid is Ownable {
         uint256 reward_price = price.mul(9).div(100);
         uint256 owner_price = price.mul(1).div(100);
 
-        POOL_ADDRESS.transfer(pool_price);
-        rewardPool.add(reward_price);
+        payable(Pool_instance).transfer(pool_price);
+        rewardPool = rewardPool.add(reward_price);
         payable(owner()).transfer(owner_price);
 
         emit PriceDistributed(pool_price, reward_price, owner_price);
