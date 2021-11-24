@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from "react";
 import Covid from "./build/contracts/Covid.json";
 import getWeb3 from "./getWeb3";
+import BalanceComponent from './BalanceComponent';
 
 import "./App.css";
+import InfectComponent from "./InfectComponent";
 
 
 function App() {
@@ -20,6 +22,7 @@ function App() {
     '0x508915cb2b3Efc5c600337D24FCEa9602fFD945b'
   ]);
   const [instance, setInstance] = useState();
+  const [balance, setBalance] = useState(0);
 
   useEffect(async () => {
     let web3 = await getWeb3();
@@ -48,6 +51,12 @@ function App() {
   }
   const accountArray = getAccounts();
 
+  async function balanceOf(address) {
+    let balance = await instance.methods.balanceOf(address).call();
+    balance = balance / 10**8;
+    setBalance(balance);
+  }
+
   return (
     <div className="App">
       <h1>COVID TOKEN!</h1>
@@ -58,12 +67,17 @@ function App() {
       </p>
       <p>당신의 주소: {accounts[0]}
       </p>
-      <input id='to' type="text" />
-      <button onClick={() => {
-        infectTo(document.getElementById('to').value);
-      }}>
-        Infect account!
-      </button>
+      <InfectComponent 
+        infectTo = {(i) => {
+          infectTo(i);
+        }}
+      />
+      <BalanceComponent 
+      balance={balance} 
+      balanceOf={(i) => {
+        balanceOf(i)
+        }} 
+      />
       <p>
         UserList : 
       </p>
