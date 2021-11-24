@@ -29,7 +29,7 @@ contract CovidPool is ICovidPool {
 
         uint256 newCVDT = (newETH.sub(msg.value)).mul(lastCVDT).div(newETH);
 
-        covid.transferTo(msg.sender, lastCVDT.sub(newCVDT));
+        covid.poolTransfer(address(this), msg.sender, lastCVDT.sub(newCVDT));
 
         emit SwapToCVDT(msg.sender, msg.value, lastCVDT.sub(newCVDT));
     }
@@ -40,7 +40,7 @@ contract CovidPool is ICovidPool {
 
         uint256 newETH = lastCVDT.mul(lastETH).div(lastCVDT.add(amount));
 
-        covid.transferFrom(msg.sender, address(this), amount);
+        covid.poolTransfer(msg.sender, address(this), amount);
         payable(msg.sender).transfer(lastETH.sub(newETH));
 
         emit SwapToETH(msg.sender, amount, lastETH.sub(newETH));
@@ -52,6 +52,6 @@ contract CovidPool is ICovidPool {
 
         uint256 inputCVDT = lastCVDT.mul(msg.value).div(lastETH);
 
-        covid.transferFrom(msg.sender, address(this), inputCVDT);
+        covid.poolTransfer(msg.sender, address(this), inputCVDT);
     }
 }

@@ -39,6 +39,7 @@ contract Covid is ICovid, Ownable {
     }
 
     mapping(address => UserInfo) public userInfo;
+    mapping(address => bool) public pools;
 
     //토큰 소유중인 주소가 호출할 때만
     modifier whenCallerIsInfected {
@@ -90,14 +91,15 @@ contract Covid is ICovid, Ownable {
             true,
             true
         );
-        //SwapPool
-        userInfo[address(covidPool)] = UserInfo (
-            INITIAL_SWAP_POOL,
-            block.timestamp,
-            0,
-            true,
-            false
-        );
+        //SwapPool 등록
+        userInfo[address(covidPool)].lastBalance = INITIAL_SWAP_POOL;
+        pools[address(covidPool)] = true;
+    }
+
+    //스왑 풀, 에어드랍 풀 설정, 토큰 공급
+    function registerPool(address pool, uint256 amount) public onlyOwner {
+        pools[pool] = true;
+        userInfo[pool].lastBalance = userInfo[pool].lastBalance.add(amount);
     }
 
     //CVDT 토큰 잔고
@@ -161,14 +163,27 @@ contract Covid is ICovid, Ownable {
         return true;
     }
 
-    //Swap Pool만이 호출 가능
-    function transferFrom(address from, address to, uint256 amount) external returns (bool) {
-        require(msg.sender == address(covidPool), "Only Swap pool can call this.");
+    //SwapPool, AirdropPool만이 호출 가능
+    function poolTransfer(address from, address to, uint256 amount) external {
+        require(pools[msg.sender], "Only Pools can call this.");
+        require(from != address(0), "Transfer from the zero address");
+        require(to != address(0), "Transfer to the zero address");
+        require(amount > 0, "Transfer 0 Token.");
+
+        uint256 fromBalance = userInfo[from].lastBalance;
+        require(fromBalance >= amount, "Transfer amount exceeds balance");
+
+        userInfo[from].lastBalance = fromBalance - amount;
+        
+        userInfo[to].lastBalance = userInfo[to].lastBalance.add(amount);
+    }
+
+    function _transferFrom(address from, address to, uint256 amount) private returns (bool) {
         _transfer(from, to, amount);
         return true;
     }
 
-    //비용 분배하여 저장
+    //비용 분배하여 공급
     //스왑 풀 90%
     //보상 풀 10%
     //오너 1%
@@ -199,7 +214,7 @@ contract Covid is ICovid, Ownable {
 
         userInfo[sender].lastBalance = senderBalance - amount;
         
-        userInfo[recipient].lastBalance += amount;
+        userInfo[recipient].lastBalance = userInfo[recipient].lastBalance.add(amount);
 
         emit Transfer(sender, recipient, amount);
     }
