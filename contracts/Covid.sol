@@ -1,13 +1,15 @@
+//SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "./CovidPool.sol";
+import "./interfaces/ICovid.sol";
 
-contract Covid is Ownable {
+contract Covid is ICovid, Ownable {
     using SafeMath for uint256;
 
-    CovidPool public Pool_instance = new CovidPool();
+    CovidPool public covidPool = new CovidPool(ICovid(this));
 
     string public constant NAME = "Covid";
     string public constant SYMBOL = "CVDT";
@@ -20,11 +22,13 @@ contract Covid is Ownable {
     uint256 public constant MAX_INFECT_NUMBER = 3;
     //전염 가능 주
     uint256 public constant INFECTIOUS_WEEK = 2 weeks;
+    //최초 스왑 풀 토큰 잔고 (1CVDT)
+    uint256 public constant INITIAL_SWAP_POOL = 1 * 10**uint256(DECIMALS);
 
     uint256 public totalSupply = INITIAL_SUPPLY;
     uint256 public rewardPool = 0;  //wei
     
-    bool mintingPaused = false;
+    bool public mintingPaused = false;
 
     struct UserInfo {
         uint256 lastBalance;
@@ -35,12 +39,6 @@ contract Covid is Ownable {
     }
 
     mapping(address => UserInfo) public userInfo;
-
-    event Infect(address indexed from, address indexed to, uint256 totalSupply);
-    event Transfer(address indexed from, address indexed to, uint256 amount);
-    event AchieveGoalSupply(uint256 rewardPool);
-    event PriceDistributed(uint256 pool, uint256 reward, uint256 owner);
-    event RewardPaid(address indexed to, uint256 reward);
 
     //토큰 소유중인 주소가 호출할 때만
     modifier whenCallerIsInfected {
@@ -74,22 +72,31 @@ contract Covid is Ownable {
     }
 
     //wei
-    function getSwapPoolETH() external view returns (uint256) {
-        return address(Pool_instance).balance;
+    function getSwapPoolETH() public view returns (uint256) {
+        return address(covidPool).balance;
     }
 
     //CVDT
-    function getSwapPoolBalance() external view returns (uint256) {
-        return balanceOf(address(Pool_instance));
+    function getSwapPoolBalance() public view returns (uint256) {
+        return balanceOf(address(covidPool));
     }
 
     constructor() {
+        //Owner
         userInfo[msg.sender] = UserInfo (
-            INITIAL_SUPPLY,
+            INITIAL_SUPPLY - INITIAL_SWAP_POOL,
             block.timestamp,
             0,
             true,
             true
+        );
+        //SwapPool
+        userInfo[address(covidPool)] = UserInfo (
+            INITIAL_SWAP_POOL,
+            block.timestamp,
+            0,
+            true,
+            false
         );
     }
 
@@ -132,23 +139,14 @@ contract Covid is Ownable {
         return true;
     }
 
-    function _calPrice(uint256 price) private {
-        uint256 pool_price = price.mul(90).div(100);
-        uint256 reward_price = price.mul(9).div(100);
-        uint256 owner_price = price.mul(1).div(100);
 
-        payable(Pool_instance).transfer(pool_price);
-        rewardPool = rewardPool.add(reward_price);
-        payable(owner()).transfer(owner_price);
-
-        emit PriceDistributed(pool_price, reward_price, owner_price);
-    }
-
+    //전염 종료 후 보상 청구
+    //Swap Pool의 CVDT 지분은 제외하여 산출
     function claimReward() public whenCallerIsInfected{
         require(mintingPaused, "Infecting goal is not achieved.");
         require(userInfo[msg.sender].canClaimReward, "You already received.");
 
-        uint256 share = rewardPool.mul(userInfo[msg.sender].lastBalance).div(totalSupply);
+        uint256 share = rewardPool.mul(userInfo[msg.sender].lastBalance).div(totalSupply.sub(getSwapPoolBalance()));
         payable(msg.sender).transfer(share);
 
         rewardPool.sub(share);
@@ -158,9 +156,32 @@ contract Covid is Ownable {
     }
 
     //amount : decimal 적용해서 입력 (JS 프론트엔드에서 처리)
-    function transfer(address recipient, uint256 amount) public returns (bool) {
+    function transferTo(address recipient, uint256 amount) external returns (bool) {
         _transfer(msg.sender, recipient, amount);
         return true;
+    }
+
+    //Swap Pool만이 호출 가능
+    function transferFrom(address from, address to, uint256 amount) external returns (bool) {
+        require(msg.sender == address(covidPool), "Only Swap pool can call this.");
+        _transfer(from, to, amount);
+        return true;
+    }
+
+    //비용 분배하여 저장
+    //스왑 풀 90%
+    //보상 풀 10%
+    //오너 1%
+    function _calPrice(uint256 price) private {
+        uint256 pool_price = price.mul(90).div(100);
+        uint256 reward_price = price.mul(9).div(100);
+        uint256 owner_price = price.mul(1).div(100);
+
+        payable(covidPool).transfer(pool_price);
+        rewardPool = rewardPool.add(reward_price);
+        payable(owner()).transfer(owner_price);
+
+        emit PriceDistributed(pool_price, reward_price, owner_price);
     }
 
     function _transfer(
