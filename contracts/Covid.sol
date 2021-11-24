@@ -157,30 +157,19 @@ contract Covid is ICovid, Ownable {
         emit RewardPaid(msg.sender, share);
     }
 
+    //sender : msg.sender 고정
     //amount : decimal 적용해서 입력 (JS 프론트엔드에서 처리)
-    function transferTo(address recipient, uint256 amount) external returns (bool) {
-        _transfer(msg.sender, recipient, amount);
-        return true;
+    function transferTo(address recipient, uint256 amount) external whenCallerIsInfected {
+        require(userInfo[recipient].isInfected, "Recipient is not infected.");
+        __transfer(msg.sender, recipient, amount);
+
+        emit Transfer(msg.sender, recipient, amount);
     }
 
     //SwapPool, AirdropPool만이 호출 가능
-    function poolTransfer(address from, address to, uint256 amount) external {
+    function poolTransfer(address sender, address recipient, uint256 amount) external {
         require(pools[msg.sender], "Only Pools can call this.");
-        require(from != address(0), "Transfer from the zero address");
-        require(to != address(0), "Transfer to the zero address");
-        require(amount > 0, "Transfer 0 Token.");
-
-        uint256 fromBalance = userInfo[from].lastBalance;
-        require(fromBalance >= amount, "Transfer amount exceeds balance");
-
-        userInfo[from].lastBalance = fromBalance - amount;
-        
-        userInfo[to].lastBalance = userInfo[to].lastBalance.add(amount);
-    }
-
-    function _transferFrom(address from, address to, uint256 amount) private returns (bool) {
-        _transfer(from, to, amount);
-        return true;
+        __transfer(sender, recipient, amount);
     }
 
     //비용 분배하여 공급
@@ -199,15 +188,16 @@ contract Covid is ICovid, Ownable {
         emit PriceDistributed(pool_price, reward_price, owner_price);
     }
 
-    function _transfer(
+    //ERC20 표준 참조
+    function __transfer(
         address sender,
         address recipient,
         uint256 amount
-    ) private whenCallerIsInfected {
+    ) private {
         require(sender != address(0), "Transfer from the zero address");
         require(recipient != address(0), "Transfer to the zero address");
         require(amount > 0, "Transfer 0 Token.");
-        require(userInfo[recipient].isInfected, "Recipient is not infected.");
+
 
         uint256 senderBalance = userInfo[sender].lastBalance;
         require(senderBalance >= amount, "Transfer amount exceeds balance");
@@ -215,7 +205,5 @@ contract Covid is ICovid, Ownable {
         userInfo[sender].lastBalance = senderBalance - amount;
         
         userInfo[recipient].lastBalance = userInfo[recipient].lastBalance.add(amount);
-
-        emit Transfer(sender, recipient, amount);
     }
 }
