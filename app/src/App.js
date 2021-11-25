@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from "react";
 import Covid from "./build/contracts/Covid.json";
+import CovidPool from "./build/contracts/CovidPool.json";
 import getWeb3 from "./getWeb3";
 import "./App.css";
-import BalanceComponent from './BalanceComponent';
-import InfectComponent from "./InfectComponent";
-import TransferComponent from "./TransferComponent";
-import TokenInfoComponent from "./TokenInfoComponent";
+import BalanceComponent from './components/BalanceComponent';
+import InfectComponent from "./components/InfectComponent";
+import TransferComponent from "./components/TransferComponent";
+import TokenInfoComponent from "./components/TokenInfoComponent";
+import SwapPoolComponent from "./components/SwapPoolComponent";
 
 
 function App() {
@@ -18,13 +20,15 @@ function App() {
     '0x5d9331184783a97cD0505Ac90371C88A814C35f3',
     '0x0b712586228E898946E5f61e54D889bFfa34F4f6',
     '0xff05bB3ba090d6e6355f5a7d32598e23ad74C3Ce',
-    '0x9A21B56f6114Bae0076C61eC0946aab304c6E6f2',
+    '0x9A21B56f6114Bae0076C61eC0946aab304c6E6f2', 
     '0x3A5ED8D5A27631F4a4F460f09c2f4ab22def3201',
     '0xE83B2Ce09205b1873dB585DAbd7dA1C3a16201D6'
   ]);
   const [instance, setInstance] = useState();
+  const [poolInstance, setPoolInstance] = useState();
   const [balance, setBalance] = useState(0);
   const [tokenInfo, setTokenInfo] = useState({});
+  const [swapPoolInfo, setSwapPoolInfo] = useState({});
 
   useEffect(async () => {
     let web3 = await getWeb3();
@@ -38,6 +42,12 @@ function App() {
     );
     setInstance(instance);
 
+    let poolInstance = new web3.eth.Contract(
+      CovidPool.abi,
+      deployedNetwork && instance.methods.covidPool().call(),
+    )
+    setPoolInstance(poolInstance);
+
     let name = await instance.methods.getName().call();
     let symbol = await instance.methods.getSymbol().call();
     let decimals = await instance.methods.getDecimals().call();
@@ -50,8 +60,15 @@ function App() {
       decimals: decimals,
       initialSupply: initialSupply,
       totalSupply: totalSupply,
-      rewardPool: rewardPool
+      rewardPool: rewardPool,
     });
+
+    let eth = await instance.methods.getSwapPoolETH().call();
+    let balance = await instance.methods.getSwapPoolBalance().call();
+    setSwapPoolInfo({
+      eth: eth,
+      balance: balance,
+    })
   }, []);
 
   async function infectTo(_to) {
@@ -84,9 +101,13 @@ function App() {
       <h1>COVID TOKEN!</h1>
       <p>Let's infect all humans.</p>
       <h2>Infect Start</h2>
-      <p>
+      <SwapPoolComponent 
+        swapPoolInfo = {swapPoolInfo}
+        tokenInfo = {tokenInfo}
+      />
+      <strong>
         주소를 입력하여 전염시키세요!
-      </p>
+      </strong>
       <p>당신의 주소: {accounts[0]}
       </p>
       <p>
@@ -94,17 +115,22 @@ function App() {
           tokenInfo = {tokenInfo}
         />
       </p>
+      <p>
       <InfectComponent 
         infectTo = {(i) => {
           infectTo(i);
         }}
       />
+      </p>
+      <p>
       <TransferComponent
         decimals = {tokenInfo.decimals}
         transferTo = {(recipient, amount) => {
           transferTo(recipient, amount);
         }} 
       />
+      </p>
+      <p>
       <BalanceComponent 
       balance={balance} 
       symbol={tokenInfo.symbol}
@@ -112,6 +138,7 @@ function App() {
         balanceOf(i)
         }} 
       />
+      </p>
       <p>
         <br />
         UserList : 
