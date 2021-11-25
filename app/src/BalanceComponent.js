@@ -11,7 +11,7 @@ function BalanceComponent(props) {
             </button>
             <input id="address" type='text' />
             <p>
-                {props.balance}
+                {props.balance} {props.symbol}
             </p>
         </div>
     );
