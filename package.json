@@ -20,6 +20,7 @@
   },
   "homepage": "https://github.com/dmstjd0182/covid_token#readme",
   "dependencies": {
-    "@openzeppelin/contracts": "^4.3.3"
+    "@openzeppelin/contracts": "^4.3.3",
+    "yarn": "^1.22.17"
   }
 }

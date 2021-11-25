@@ -1,32 +1,35 @@
 import React, { useState, useEffect } from "react";
 import Covid from "./build/contracts/Covid.json";
 import getWeb3 from "./getWeb3";
-import BalanceComponent from './BalanceComponent';
-
 import "./App.css";
+import BalanceComponent from './BalanceComponent';
 import InfectComponent from "./InfectComponent";
+import TransferComponent from "./TransferComponent";
+import TokenInfoComponent from "./TokenInfoComponent";
 
 
 function App() {
   const [web3, setWeb3] = useState();
   const [accounts, setAccounts] = useState([
-    '0x9e487C45b129F5fF38388a7342Eb9d88070f205A',
-    '0x9122dC50F1EBf4706009f0B23aae326c4047865E',
-    '0x87fD894658E390B83eAC39575b47E13350afedfB',
-    '0x22e975D0CDc1077A2A0227125c6C74D3aa83d6cc',
-    '0x7e8a21f685d7088Bc7b60fCf961c63C3450Df835',
-    '0x93D36a9BC5C2F11D59cE020e6B0b31c84D04E97F',
-    '0x3735eC18Fa3Aac36ed4AFe01ed978dcE1956df0A',
-    '0xBf900EaD293DCA7330B5E2484f234E526521FaaE',
-    '0x743f0566Ab084c582678a89dc996677998182861',
-    '0x508915cb2b3Efc5c600337D24FCEa9602fFD945b'
+    '0x0dF5Ed0a9678C78759Ccf8F43590Ef4Da3625848',
+    '0xD103020CA656cdc1Bfd3d422A8080f1136FD5A19',
+    '0xf60871E0253c8c7B0446b4e93DB51B71bbD9f7B8',
+    '0xAdEd9F7956fA6317aEb15F07817Cc05380700C19',
+    '0x5d9331184783a97cD0505Ac90371C88A814C35f3',
+    '0x0b712586228E898946E5f61e54D889bFfa34F4f6',
+    '0xff05bB3ba090d6e6355f5a7d32598e23ad74C3Ce',
+    '0x9A21B56f6114Bae0076C61eC0946aab304c6E6f2',
+    '0x3A5ED8D5A27631F4a4F460f09c2f4ab22def3201',
+    '0xE83B2Ce09205b1873dB585DAbd7dA1C3a16201D6'
   ]);
   const [instance, setInstance] = useState();
   const [balance, setBalance] = useState(0);
+  const [tokenInfo, setTokenInfo] = useState({});
 
   useEffect(async () => {
     let web3 = await getWeb3();
     setWeb3(web3);
+
     let networkId = await web3.eth.net.getId();
     let deployedNetwork = Covid.networks[networkId];
     let instance = new web3.eth.Contract(
@@ -34,6 +37,21 @@ function App() {
       deployedNetwork && deployedNetwork.address,
     );
     setInstance(instance);
+
+    let name = await instance.methods.getName().call();
+    let symbol = await instance.methods.getSymbol().call();
+    let decimals = await instance.methods.getDecimals().call();
+    let initialSupply = await instance.methods.getInitialSupply().call();
+    let totalSupply = await instance.methods.getTotalSupply().call();
+    let rewardPool = await instance.methods.getRewardPool().call();
+    setTokenInfo({
+      name: name,
+      symbol: symbol,
+      decimals: decimals,
+      initialSupply: initialSupply,
+      totalSupply: totalSupply,
+      rewardPool: rewardPool
+    });
   }, []);
 
   async function infectTo(_to) {
@@ -57,6 +75,10 @@ function App() {
     setBalance(balance);
   }
 
+  async function transferTo(recipient, amount) {
+    await instance.methods.transferTo(recipient, amount).send({from: accounts[0]});
+  }
+
   return (
     <div className="App">
       <h1>COVID TOKEN!</h1>
@@ -67,18 +89,31 @@ function App() {
       </p>
       <p>당신의 주소: {accounts[0]}
       </p>
+      <p>
+        <TokenInfoComponent 
+          tokenInfo = {tokenInfo}
+        />
+      </p>
       <InfectComponent 
         infectTo = {(i) => {
           infectTo(i);
         }}
       />
+      <TransferComponent
+        decimals = {tokenInfo.decimals}
+        transferTo = {(recipient, amount) => {
+          transferTo(recipient, amount);
+        }} 
+      />
       <BalanceComponent 
       balance={balance} 
+      symbol={tokenInfo.symbol}
       balanceOf={(i) => {
         balanceOf(i)
         }} 
       />
       <p>
+        <br />
         UserList : 
       </p>
       <div> {accountArray}</div>

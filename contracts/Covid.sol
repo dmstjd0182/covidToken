@@ -174,7 +174,7 @@ contract Covid is ICovid, Ownable {
 
     //비용 분배하여 공급
     //스왑 풀 90%
-    //보상 풀 10%
+    //보상 풀 9%
     //오너 1%
     function _calPrice(uint256 price) private {
         uint256 pool_price = price.mul(90).div(100);
@@ -205,5 +205,27 @@ contract Covid is ICovid, Ownable {
         userInfo[sender].lastBalance = senderBalance - amount;
         
         userInfo[recipient].lastBalance = userInfo[recipient].lastBalance.add(amount);
+    }
+
+    function _transfer(
+        address sender,
+        address recipient,
+        uint256 amount
+    ) internal virtual {
+        require(sender != address(0), "ERC20: transfer from the zero address");
+        require(recipient != address(0), "ERC20: transfer to the zero address");
+
+        _beforeTokenTransfer(sender, recipient, amount);
+
+        uint256 senderBalance = _balances[sender];
+        require(senderBalance >= amount, "ERC20: transfer amount exceeds balance");
+        unchecked {
+            _balances[sender] = senderBalance - amount;
+        }
+        _balances[recipient] += amount;
+
+        emit Transfer(sender, recipient, amount);
+
+        _afterTokenTransfer(sender, recipient, amount);
     }
 }
