@@ -4644,6 +4644,11 @@
   "resolved" "https://registry.npmjs.org/fs.realpath/-/fs.realpath-1.0.0.tgz"
   "version" "1.0.0"
 
+"fsevents@^1.2.7", "fsevents@2.0.7":
+  "integrity" "sha512-a7YT0SV3RB+DjYcppwVDLtn13UQnmg0SWZS7ezZD0UjnLwXmy8Zm21GMVGLaFGimIqcvyMQaOJBrop8MyOp1kQ=="
+  "resolved" "https://registry.npmjs.org/fsevents/-/fsevents-2.0.7.tgz"
+  "version" "2.0.7"
+
 "function-bind@^1.1.1":
   "integrity" "sha512-yIovAzMX49sF8Yl58fSCWJ5svSLuaibPxXQJFLmBObTuCr0Mf1KiPopGM9NiFjiYBCbfaa2Fh6breQ6ANVTI0A=="
   "resolved" "https://registry.npmjs.org/function-bind/-/function-bind-1.1.1.tgz"
@@ -9376,6 +9381,7 @@
   "version" "2.0.3"
 
 "scrypt-shim@github:web3-js/scrypt-shim":
+  "integrity" "sha512-PQGxuyPidI88bQMJ/fF2tzwkTF4YzzfhoYQNexgJXNdt+YJd6ceH5ScQa1OJNWbMGOi1PlXbxTaDOdPGckPEHw=="
   "resolved" "git+ssh://git@github.com/web3-js/scrypt-shim.git#be5e616323a8b5e568788bf94d03c1b8410eac54"
   "version" "0.1.0"
   dependencies:
@@ -11127,6 +11133,7 @@
   "version" "0.1.4"
 
 "websocket@github:web3-js/WebSocket-Node#polyfill/globalThis":
+  "integrity" "sha512-t3z6NLuJsNkGiKb3PoOx6p6eMTu7Ljkcwgtveqd4aWXnSZBJHbXljdF6rYSSNUW96Q+ciZW5Vunck0i23wDwWQ=="
   "resolved" "git+ssh://git@github.com/web3-js/WebSocket-Node.git#905deb4812572b344f5801f8c9ce8bb02799d82e"
   "version" "1.0.29"
   dependencies:
@@ -11528,6 +11535,11 @@
     "which-module" "^2.0.0"
     "y18n" "^3.2.1 || ^4.0.0"
     "yargs-parser" "^10.1.0"
+
+"yarn@^1.22.17":
+  "integrity" "sha512-H0p241BXaH0UN9IeH//RT82tl5PfNraVpSpEoW+ET7lmopNC61eZ+A+IDvU8FM6Go5vx162SncDL8J1ZjRBriQ=="
+  "resolved" "https://registry.npmjs.org/yarn/-/yarn-1.22.17.tgz"
+  "version" "1.22.17"
 
 "yauzl@^2.4.2":
   "integrity" "sha1-x+sXyT4RLLEIb6bY5R+wZnt5pfk="

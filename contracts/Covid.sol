@@ -27,6 +27,7 @@ contract Covid is ICovid, Ownable {
 
     uint256 public totalSupply = INITIAL_SUPPLY;
     uint256 public rewardPool = 0;  //wei
+    uint256 public totalInfectingOrder = 0;     //모든 감염자의 전염차수 총합
     
     bool public mintingPaused = false;
 
@@ -34,8 +35,10 @@ contract Covid is ICovid, Ownable {
         uint256 lastBalance;
         uint256 time;           //최초 소유 시간
         uint256 infectingCount; //전염 시킨(발행한) 사람 수 (최대 3명)
+        uint256 infectingOrder; //전염 차수
         bool isInfected;        //최초 소유 시 true로 변경
         bool canClaimReward;    //보상 지급받을 수 있는가
+        address infectedFrom;
     }
 
     mapping(address => UserInfo) public userInfo;
@@ -88,8 +91,10 @@ contract Covid is ICovid, Ownable {
             INITIAL_SUPPLY - INITIAL_SWAP_POOL,
             block.timestamp,
             0,
+            0,
             true,
-            true
+            true,
+            address(0)
         );
         //SwapPool 등록
         userInfo[address(covidPool)].lastBalance = INITIAL_SWAP_POOL;
@@ -122,10 +127,18 @@ contract Covid is ICovid, Ownable {
             1 * 10**uint256(DECIMALS),
             block.timestamp,
             0,
+            0,
             true,
-            true
+            true,
+            msg.sender
         );
-
+        //해당 전염 경로의 모든 사람 전염 차수 증가
+        address from = msg.sender;
+        while(from != address(0)) {
+            totalInfectingOrder = totalInfectingOrder.add(1);
+            userInfo[from].infectingOrder = userInfo[from].infectingOrder.add(1);
+            from = userInfo[from].infectedFrom;
+        }
         //비용 처리
         _calPrice(msg.value);
 
@@ -143,15 +156,18 @@ contract Covid is ICovid, Ownable {
 
 
     //전염 종료 후 보상 청구
+    //절반 : 토큰 지분에 따라 분배
+    //절반 : 전염 차수에 따라 분배
     //Swap Pool의 CVDT 지분은 제외하여 산출
     function claimReward() public whenCallerIsInfected{
         require(mintingPaused, "Infecting goal is not achieved.");
         require(userInfo[msg.sender].canClaimReward, "You already received.");
 
-        uint256 share = rewardPool.mul(userInfo[msg.sender].lastBalance).div(totalSupply.sub(getSwapPoolBalance()));
+        //보상 계산
+        uint256 share = _calShare();
         payable(msg.sender).transfer(share);
 
-        rewardPool.sub(share);
+        rewardPool = rewardPool.sub(share);
         userInfo[msg.sender].canClaimReward = false;
         
         emit RewardPaid(msg.sender, share);
@@ -186,6 +202,19 @@ contract Covid is ICovid, Ownable {
         payable(owner()).transfer(owner_price);
 
         emit PriceDistributed(pool_price, reward_price, owner_price);
+    }
+
+    //보상 계산
+    function _calShare() view private returns (uint256) {
+        //절반 나누기
+        uint256 firstHalf = rewardPool.div(2);
+        uint256 secondHalf = rewardPool.sub(firstHalf);
+
+        //토큰 지분에 따라 / 전염 차수에 따라
+        uint256 tokenShare = firstHalf.mul(userInfo[msg.sender].lastBalance).div(totalSupply.sub(getSwapPoolBalance()));
+        uint256 orderShare = secondHalf.mul(userInfo[msg.sender].infectingOrder).div(totalInfectingOrder);
+
+        return tokenShare.add(orderShare);
     }
 
     //ERC20 표준 참조

@@ -18,9 +18,10 @@ interface ICovid{
     function getSwapPoolETH() external view returns (uint256);
     function getSwapPoolBalance() external view returns (uint256);
 
-    function userInfo(address user) external view returns (uint256 lastBalance, uint256 time, uint256 infectingCount, bool isInfected, bool canClaimReward);
+    function userInfo(address user) external view returns (uint256 lastBalance, uint256 time, uint256 infectingCount, uint256 infectingOrder, bool isInfected, bool canClaimReward, address infectedFrom);
     function pools(address pool) external view returns (bool);
 
+    function registerPool(address pool, uint256 amount) external;
     function balanceOf(address user) external view returns (uint256 balance);
     function infectTo(address _to) payable external returns (bool);
     function claimReward() external;
