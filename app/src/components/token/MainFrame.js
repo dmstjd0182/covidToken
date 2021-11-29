@@ -1,10 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useWeb3React } from "@web3-react/core";
 import Covid from "../../build/contracts/Covid.json";
-import BalanceComponent from "./BalanceComponent";
-import InfectComponent from "./InfectComponent";
-import TransferComponent from "./TransferComponent";
-import RewardPoolComponent from "./RewardPoolComponent";
+
 
 const COVIDADDRESS = "0x3869Cc46CF529778172A39423D1054C208BD039d";
 export const InstanceContext = React.createContext();
@@ -38,7 +35,7 @@ function MainFrame(props) {
     
     useEffect(() => {
         getTokenInfo();
-    },[]);
+    }, []);
 
     if (isLoading) {
         return(
@@ -48,10 +45,7 @@ function MainFrame(props) {
         return(
             <InstanceContext.Provider value={covid}>
             <TokenInfoContext.Provider value={tokenInfo}>
-                <BalanceComponent />
-                <InfectComponent />
-                <TransferComponent />
-                <RewardPoolComponent />
+                {props.children}
             </TokenInfoContext.Provider>
             </InstanceContext.Provider>
         );
