@@ -69,6 +69,10 @@ contract Covid is ICovid, Ownable {
         return INITIAL_SUPPLY;
     }
 
+    function getInfectedArray() external view returns (address[] memory){
+        return infected;
+    }
+
     constructor() {
         //Owner
         userInfo[msg.sender] = UserInfo (
