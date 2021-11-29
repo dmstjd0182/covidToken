@@ -11,7 +11,7 @@ function TransferComponent() {
 
     let handleSubmit = async (e) => {
         e.preventDefault();
-        await covid.methods.transferTo(recipient, amount * decimals ).send({from: account});
+        await covid.methods.transferTo(recipient, Math.round(amount * decimals) ).send({from: account});
     };
 
     let handleRecipientChange = (e) => {
