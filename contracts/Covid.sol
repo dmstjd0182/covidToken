@@ -25,11 +25,13 @@ contract Covid is ICovid, Ownable {
     //최초 스왑 풀 토큰 잔고 (1CVDT)
     uint256 public constant INITIAL_SWAP_POOL = 1 * 10**uint256(DECIMALS);
 
-    uint256 public totalSupply = INITIAL_SUPPLY;
-    uint256 public rewardPool = 0;  //wei
-    uint256 public totalInfectingOrder = 0;     //모든 감염자의 전염차수 총합
+    uint256 public totalSupply = INITIAL_SUPPLY;    //현재 총 발행량
+    uint256 public rewardPool = 0;                  //wei
+    uint256 public totalInfectingOrder = 0;         //모든 감염자의 전염차수 총합
     
     bool public mintingPaused = false;
+
+    address[] public infected;  //모든 감염자들 주소 배열
 
     struct UserInfo {
         uint256 lastBalance;
@@ -51,38 +53,20 @@ contract Covid is ICovid, Ownable {
         _;
     }
 
-    function getName() external pure returns (string memory) {
+    function name() external pure returns (string memory) {
         return NAME;
     }
 
-    function getSymbol() external pure returns (string memory) {
+    function symbol() external pure returns (string memory) {
         return SYMBOL;
     }
 
-    function getDecimals() external pure returns (uint8) {
+    function decimals() external pure returns (uint8) {
         return DECIMALS;
     }
 
-    function getInitialSupply() external pure returns (uint256) {
+    function initialSupply() external pure returns (uint256) {
         return INITIAL_SUPPLY;
-    }
-
-    function getTotalSupply() external view returns (uint256) {
-        return totalSupply;
-    }
-
-    function getRewardPool() external view returns (uint256) {
-        return rewardPool;
-    }
-
-    //wei
-    function getSwapPoolETH() public view returns (uint256) {
-        return address(covidPool).balance;
-    }
-
-    //CVDT
-    function getSwapPoolBalance() public view returns (uint256) {
-        return balanceOf(address(covidPool));
     }
 
     constructor() {
@@ -123,6 +107,7 @@ contract Covid is ICovid, Ownable {
         require(userInfo[_to].isInfected == false, "That address was already infected.");
 
         //감염자 정보 등록
+        infected.push(_to);
         userInfo[_to] = UserInfo(
             1 * 10**uint256(DECIMALS),
             block.timestamp,
@@ -184,7 +169,22 @@ contract Covid is ICovid, Ownable {
 
     //SwapPool, AirdropPool만이 호출 가능
     function poolTransfer(address sender, address recipient, uint256 amount) external {
-        require(pools[msg.sender], "Only Pools can call this.");
+        require(pools[msg.sender], "Only pools can call this.");
+
+        //에어드랍이면
+        if (userInfo[sender].isInfected == false && pools[recipient] == false) {
+            //최초 감염자 기본 정보 등록
+            infected.push(recipient);
+            userInfo[recipient] = UserInfo(
+                0,
+                block.timestamp,
+                0,
+                0,
+                true,
+                true,
+                address(0)  // 1차 감염자
+            );
+        }
         __transfer(sender, recipient, amount);
     }
 
@@ -211,7 +211,7 @@ contract Covid is ICovid, Ownable {
         uint256 secondHalf = rewardPool.sub(firstHalf);
 
         //토큰 지분에 따라 / 전염 차수에 따라
-        uint256 tokenShare = firstHalf.mul(userInfo[msg.sender].lastBalance).div(totalSupply.sub(getSwapPoolBalance()));
+        uint256 tokenShare = firstHalf.mul(userInfo[msg.sender].lastBalance).div(totalSupply.sub(balanceOf(address(covidPool))));
         uint256 orderShare = secondHalf.mul(userInfo[msg.sender].infectingOrder).div(totalInfectingOrder);
 
         return tokenShare.add(orderShare);

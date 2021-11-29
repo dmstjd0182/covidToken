@@ -23,9 +23,16 @@ contract CovidPool is ICovidPool {
         _;
     }
 
+    function getSwapPoolETH() public view returns (uint256){
+        return address(this).balance;
+    }
+    function getSwapPoolBalance() public view returns (uint256){
+        return covid.balanceOf(address(this));
+    }
+
     function swapToCVDT() external payable whenCallerIsInfected{
-        uint256 newETH = address(this).balance;
-        uint256 lastCVDT = covid.getSwapPoolBalance();
+        uint256 newETH = getSwapPoolETH();
+        uint256 lastCVDT = getSwapPoolBalance();
 
         uint256 newCVDT = (newETH.sub(msg.value)).mul(lastCVDT).div(newETH);
 
@@ -35,8 +42,8 @@ contract CovidPool is ICovidPool {
     }
 
     function swapToETH(uint256 amount) external whenCallerIsInfected{
-        uint256 lastETH = address(this).balance;
-        uint256 lastCVDT = covid.getSwapPoolBalance();
+        uint256 lastETH = getSwapPoolETH();
+        uint256 lastCVDT = getSwapPoolBalance();
 
         uint256 newETH = lastCVDT.mul(lastETH).div(lastCVDT.add(amount));
 
@@ -47,8 +54,8 @@ contract CovidPool is ICovidPool {
     }
 
     function addLiquidity() external payable whenCallerIsInfected{
-        uint256 lastETH = (address(this).balance).sub(msg.value);
-        uint256 lastCVDT = covid.getSwapPoolBalance();
+        uint256 lastETH = getSwapPoolETH().sub(msg.value);
+        uint256 lastCVDT = getSwapPoolBalance();
 
         uint256 inputCVDT = lastCVDT.mul(msg.value).div(lastETH);
 
