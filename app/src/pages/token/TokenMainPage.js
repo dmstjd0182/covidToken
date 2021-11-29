@@ -6,6 +6,7 @@ import BalanceComponent from "../../components/token/BalanceComponent";
 import InfectComponent from "../../components/token/InfectComponent";
 import TransferComponent from "../../components/token/TransferComponent";
 import RewardPoolComponent from "../../components/token/RewardPoolComponent";
+import TotalSupplyComponent from "../../components/token/TotalSupplyComponent";
 
 
 function TokenMainPage() {
@@ -13,16 +14,18 @@ function TokenMainPage() {
 
     return (
         <div>
-            <h1>COVID TOKEN!</h1>
             <ConnectComponents />
-            
+            <p>
+            <h1>COVID TOKEN!</h1>
             {active && 
             <MainFrame>
+                <TotalSupplyComponent />
                 <BalanceComponent />
                 <InfectComponent />
                 <TransferComponent />
                 <RewardPoolComponent />
             </MainFrame>}
+            </p>
         </div>
     );
 }
