@@ -1,7 +1,8 @@
 import React from 'react';
 import { Web3ReactProvider } from '@web3-react/core';
 import {BrowserRouter, Route, Link, Routes} from 'react-router-dom';
-import ConnectComponents from './components/wallet/ConnectComponent';
+import TokenMainPage from './pages/token/TokenMainPage';
+// import SwapPool from './pages/swapPool/SwapPool';
 import Web3 from 'web3';
 
 function getLibrary(provider) {
@@ -13,7 +14,8 @@ function App() {
     <Web3ReactProvider getLibrary={getLibrary}>
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<ConnectComponents />} />
+        <Route path="/" element={<TokenMainPage />} />
+        {/* <Route path="/swappool" component={swapPool} /> */}
       </Routes>
     </BrowserRouter>
     </Web3ReactProvider>
