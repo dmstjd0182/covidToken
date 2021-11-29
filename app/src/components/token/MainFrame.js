@@ -3,7 +3,7 @@ import { useWeb3React } from "@web3-react/core";
 import Covid from "../../build/contracts/Covid.json";
 
 
-const COVIDADDRESS = "0x3869Cc46CF529778172A39423D1054C208BD039d";
+const COVIDADDRESS = "0x5312e68deC38B7D1f1a43e6B7B66144E12E917C4";
 export const InstanceContext = React.createContext();
 export const TokenInfoContext = React.createContext();
 

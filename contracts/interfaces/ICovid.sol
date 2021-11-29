@@ -15,10 +15,10 @@ interface ICovid{
     function initialSupply() external pure returns (uint256);
     function totalSupply() external view returns (uint256);
     function rewardPool() external view returns (uint256);
-    function totalInfectingOrder() external view returns (uint256);
+    function totalInfectingScore() external view returns (uint256);
 
     function infected(uint256 id) external view returns (address);
-    function userInfo(address user) external view returns (uint256 lastBalance, uint256 time, uint256 infectingCount, uint256 infectingOrder, bool isInfected, bool canClaimReward, address infectedFrom);
+    function userInfo(address user) external view returns (uint256 lastBalance, uint256 time, uint256 infectingCount, uint256 infectingScore, bool isInfected, bool canClaimReward, address infectedFrom);
     function pools(address pool) external view returns (bool);
 
     function registerPool(address pool, uint256 amount) external;

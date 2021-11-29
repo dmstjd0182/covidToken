@@ -17,11 +17,11 @@ function RewardPoolComponent() {
     };
 
     let calMyReward = async () => {
-        let { infectingOrder } = await covid.methods.userInfo(account).call();
-        let totalInfectingOrder = await covid.methods.totalInfectingOrder().call();
+        let { infectingScore } = await covid.methods.userInfo(account).call();
+        let totalInfectingScore = await covid.methods.totalInfectingScore().call();
         let myBalance = await covid.methods.balanceOf(account).call();
 
-        let _myReward = (rewardPool / 2) * myBalance / totalSupply + (rewardPool / 2) * infectingOrder / totalInfectingOrder;
+        let _myReward = (rewardPool / 2) * myBalance / totalSupply + (rewardPool / 2) * infectingScore / totalInfectingScore;
         setMyReward(_myReward);
     }
 
@@ -36,7 +36,7 @@ function RewardPoolComponent() {
     return (
         <div>
             보상 풀: {rewardPool} ETH <br />
-            내 보상: {myReward} ETH
+            내 보상: {myReward || 0} ETH
         </div>
     );
 }

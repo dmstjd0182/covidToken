@@ -27,7 +27,7 @@ contract Covid is ICovid, Ownable {
 
     uint256 public totalSupply = INITIAL_SUPPLY;    //현재 총 발행량
     uint256 public rewardPool = 0;                  //wei
-    uint256 public totalInfectingOrder = 0;         //모든 감염자의 전염차수 총합
+    uint256 public totalInfectingScore = 0;         //모든 감염자의 전염차수 총합
     
     bool public mintingPaused = false;
 
@@ -37,7 +37,7 @@ contract Covid is ICovid, Ownable {
         uint256 lastBalance;
         uint256 time;           //최초 소유 시간
         uint256 infectingCount; //전염 시킨(발행한) 사람 수 (최대 3명)
-        uint256 infectingOrder; //전염 차수
+        uint256 infectingScore; //전염 차수
         bool isInfected;        //최초 소유 시 true로 변경
         bool canClaimReward;    //보상 지급받을 수 있는가
         address infectedFrom;
@@ -120,8 +120,8 @@ contract Covid is ICovid, Ownable {
         //해당 전염 경로의 모든 사람 전염 차수 증가
         address from = msg.sender;
         while(from != address(0)) {
-            totalInfectingOrder = totalInfectingOrder.add(1);
-            userInfo[from].infectingOrder = userInfo[from].infectingOrder.add(1);
+            totalInfectingScore = totalInfectingScore.add(1);
+            userInfo[from].infectingScore = userInfo[from].infectingScore.add(1);
             from = userInfo[from].infectedFrom;
         }
         //비용 처리
@@ -212,7 +212,7 @@ contract Covid is ICovid, Ownable {
 
         //토큰 지분에 따라 / 전염 차수에 따라
         uint256 tokenShare = firstHalf.mul(userInfo[msg.sender].lastBalance).div(totalSupply.sub(balanceOf(address(covidPool))));
-        uint256 orderShare = secondHalf.mul(userInfo[msg.sender].infectingOrder).div(totalInfectingOrder);
+        uint256 orderShare = secondHalf.mul(userInfo[msg.sender].infectingScore).div(totalInfectingScore);
 
         return tokenShare.add(orderShare);
     }
