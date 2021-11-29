@@ -4,6 +4,7 @@ import {BrowserRouter, Route, Link, Routes} from 'react-router-dom';
 import TokenMainPage from './pages/token/TokenMainPage';
 // import SwapPool from './pages/swapPool/SwapPool';
 import Web3 from 'web3';
+import './App.css';
 
 function getLibrary(provider) {
   return new Web3(provider);
@@ -11,6 +12,7 @@ function getLibrary(provider) {
 
 function App() {
   return(
+    <div className="App-header">
     <Web3ReactProvider getLibrary={getLibrary}>
     <BrowserRouter>
       <Routes>
@@ -19,6 +21,7 @@ function App() {
       </Routes>
     </BrowserRouter>
     </Web3ReactProvider>
+    </div>
   )
 
 }
