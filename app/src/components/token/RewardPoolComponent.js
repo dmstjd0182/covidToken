@@ -1,6 +1,10 @@
 import React, { useState, useEffect, useContext } from "react";
 import { useWeb3React } from '@web3-react/core';
 import { InstanceContext, TokenInfoContext } from "./MainFrame";
+import InfectScoreComponent from "./InfectScoreComponent";
+
+let infectingScore = 0;
+let totalInfectingScore = 0;
 
 function RewardPoolComponent() {
     const {account, library: web3} = useWeb3React();
@@ -17,8 +21,8 @@ function RewardPoolComponent() {
     };
 
     let calMyReward = async () => {
-        let { infectingScore } = await covid.methods.userInfo(account).call();
-        let totalInfectingScore = await covid.methods.totalInfectingScore().call();
+        ({ infectingScore } = await covid.methods.userInfo(account).call());
+        totalInfectingScore = await covid.methods.totalInfectingScore().call();
         let myBalance = await covid.methods.balanceOf(account).call();
 
         let _myReward = (rewardPool / 2) * myBalance / totalSupply + (rewardPool / 2) * infectingScore / totalInfectingScore;
@@ -36,6 +40,10 @@ function RewardPoolComponent() {
     return (
         <div>
             보상 풀: {rewardPool} ETH <br />
+            <InfectScoreComponent 
+                infectingScore={infectingScore} 
+                totalInfectingScore={totalInfectingScore}
+            />
             내 보상: {myReward || 0} ETH
         </div>
     );
