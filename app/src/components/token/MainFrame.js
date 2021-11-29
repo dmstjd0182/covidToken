@@ -16,19 +16,14 @@ function MainFrame(props) {
     const covid = new web3.eth.Contract(Covid.abi, COVIDADDRESS);
 
     async function getTokenInfo() {
-        let _name = await covid.methods.name().call();
         let _symbol = await covid.methods.symbol().call();
         let _decimals = 10 ** (await covid.methods.decimals().call());
-        let _initialSupply = await covid.methods.initialSupply().call();
         let _totalSupply = await covid.methods.totalSupply().call();
-        let _rewardPool = await covid.methods.rewardPool().call();
         
-        tokenInfo = {name: _name,
+        tokenInfo = {
             symbol: _symbol,
             decimals: _decimals,
-            initialSupply: _initialSupply,
             totalSupply: _totalSupply,
-            rewardPool: _rewardPool,
             };
         setIsLoading(false);
     }
