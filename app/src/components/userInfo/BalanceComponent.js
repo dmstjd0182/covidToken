@@ -22,7 +22,7 @@ function BalanceComponent(props) {
 
     return (
         <div>
-            내 토큰: {balance.toLocaleString()} {symbol}
+            내 토큰: {balance.toFixed(6).toLocaleString()} {symbol}
         </div>
     );
 }
