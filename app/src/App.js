@@ -1,9 +1,9 @@
 import React from 'react';
 import {BrowserRouter, Route, Link, Routes} from 'react-router-dom';
-import TokenMainPage from './pages/token/TokenMainPage';
-// import SwapPool from './pages/swapPool/SwapPool';
 import './App.css';
 import Web3ReactComponent from './components/web3React/Web3ReactComponent';
+import TokenMainPage from './pages/token/TokenMainPage';
+import SwapPoolMainPage from './pages/swapPool/SwapPoolMainPage';
 
 function App() {
   return(
@@ -12,7 +12,7 @@ function App() {
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<TokenMainPage />} />
-          {/* <Route path="/swappool" component={swapPool} /> */}
+          <Route path="/swap" element={<SwapPoolMainPage />} />
         </Routes>
       </BrowserRouter>
     </Web3ReactComponent>
