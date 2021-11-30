@@ -44,7 +44,9 @@ function RewardPoolComponent() {
                 infectingScore={infectingScore} 
                 totalInfectingScore={totalInfectingScore}
             />
-            내 보상: {myReward || 0} ETH
+            내 보상: {isNaN(myReward) 
+            ? 0 
+            : myReward.toFixed(8) || 0 } ETH
         </div>
     );
 }
