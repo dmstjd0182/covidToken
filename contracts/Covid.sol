@@ -164,7 +164,7 @@ contract Covid is ICovid, Ownable {
         } else {
             rewardPool = rewardPool.add(share);
             userInfo[msg.sender].canClaimReward = true;
-            revert RewardPayFailed();
+            revert RewardPayFailed(msg.sender);
         }
     }
 
