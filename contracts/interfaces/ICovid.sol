@@ -9,6 +9,8 @@ interface ICovid{
     event PriceDistributed(uint256 pool, uint256 reward, uint256 owner);
     event RewardPaid(address indexed to, uint256 reward);
 
+    error RewardPayFailed();
+
     function name() external pure returns (string memory);
     function symbol() external pure returns (string memory);
     function decimals() external pure returns (uint8);

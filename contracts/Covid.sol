@@ -155,12 +155,15 @@ contract Covid is ICovid, Ownable {
 
         //보상 계산
         uint256 share = _calShare();
-        payable(msg.sender).transfer(share);
-
+        
+        if(payable(msg.sender).send(share)){
         rewardPool = rewardPool.sub(share);
         userInfo[msg.sender].canClaimReward = false;
         
         emit RewardPaid(msg.sender, share);
+        } else {
+            revert RewardPayFailed();
+        }
     }
 
     //sender : msg.sender 고정
