@@ -3,15 +3,15 @@ pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
-import "./CovidPool.sol";
+import "./SwapPool.sol";
 import "./interfaces/ICovid.sol";
 
 contract Covid is ICovid, Ownable {
     using SafeMath for uint256;
 
-    CovidPool public covidPool = new CovidPool(ICovid(this));
+    SwapPool public swapPool = new SwapPool(ICovid(this));
 
-    string public constant NAME = "Covid";
+    string public constant NAME = "COVID";
     string public constant SYMBOL = "CVDT";
     uint8 public constant DECIMALS = 8;
     // 최초 1만개 발행, 이후 전염으로 추가 발행
@@ -85,8 +85,8 @@ contract Covid is ICovid, Ownable {
             address(0)
         );
         //SwapPool 등록
-        userInfo[address(covidPool)].lastBalance = INITIAL_SWAP_POOL;
-        pools[address(covidPool)] = true;
+        userInfo[address(swapPool)].lastBalance = INITIAL_SWAP_POOL;
+        pools[address(swapPool)] = true;
     }
 
     //스왑 풀, 에어드랍 풀 설정, 토큰 공급
@@ -201,7 +201,7 @@ contract Covid is ICovid, Ownable {
         uint256 reward_price = price.mul(9).div(100);
         uint256 owner_price = price.mul(1).div(100);
 
-        payable(covidPool).transfer(pool_price);
+        payable(swapPool).transfer(pool_price);
         rewardPool = rewardPool.add(reward_price);
         payable(owner()).transfer(owner_price);
 
@@ -215,7 +215,7 @@ contract Covid is ICovid, Ownable {
         uint256 secondHalf = rewardPool.sub(firstHalf);
 
         //토큰 지분에 따라 / 전염 차수에 따라
-        uint256 tokenShare = firstHalf.mul(userInfo[msg.sender].lastBalance).div(totalSupply.sub(balanceOf(address(covidPool))));
+        uint256 tokenShare = firstHalf.mul(userInfo[msg.sender].lastBalance).div(totalSupply.sub(balanceOf(address(swapPool))));
         uint256 orderShare = secondHalf.mul(userInfo[msg.sender].infectingScore).div(totalInfectingScore);
 
         return tokenShare.add(orderShare);

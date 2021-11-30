@@ -2,10 +2,10 @@
 pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
-import "./interfaces/ICovidPool.sol";
+import "./interfaces/ISwapPool.sol";
 import "./interfaces/ICovid.sol";
 
-contract CovidPool is ICovidPool {
+contract SwapPool is ISwapPool {
     using SafeMath for uint256;
 
     ICovid public covid;
