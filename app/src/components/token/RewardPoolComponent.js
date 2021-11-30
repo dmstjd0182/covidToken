@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext } from "react";
 import { useWeb3React } from '@web3-react/core';
-import { InstanceContext, TokenInfoContext } from "./MainFrame";
+import { CovidContext, TokenInfoContext } from "../context/ContextComponent";
 import InfectScoreComponent from "./InfectScoreComponent";
 
 let infectingScore = 0;
@@ -8,7 +8,7 @@ let totalInfectingScore = 0;
 
 function RewardPoolComponent() {
     const {account, library: web3} = useWeb3React();
-    const covid = useContext(InstanceContext);
+    const covid = useContext(CovidContext);
     const { totalSupply } = useContext(TokenInfoContext);
     const [rewardPool, setRewardPool] = useState(0);
     const [myReward, setMyReward] = useState(0);

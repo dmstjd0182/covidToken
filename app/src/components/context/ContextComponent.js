@@ -1,19 +1,23 @@
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useWeb3React } from "@web3-react/core";
 import Covid from "../../build/contracts/Covid.json";
+import SwapPool from "../../build/contracts/SwapPool.json";
 
+const COVID_ADDRESS = "0xcD181735837a3fFB0F1a9450B7E6aD8F2aD476b1";
+const SWAP_POOL_ADDRESS = "0x826d5f6995671bDF278B47B8F857aEc4Ea94F4Bc";
 
-const COVIDADDRESS = "0x5312e68deC38B7D1f1a43e6B7B66144E12E917C4";
-export const InstanceContext = React.createContext();
-export const TokenInfoContext = React.createContext();
+export const CovidContext = React.createContext();
+export const SwapPoolContext = React.createContext();
+export const TokenInfoContext = React.createContext();  
 
 let tokenInfo = {};
 
-function MainFrame(props) {
-    const {library: web3} = useWeb3React();
+function ContextComponent(props) {
+    const { library: web3 } = useWeb3React();
     const [isLoading, setIsLoading] = useState(true);
 
-    const covid = new web3.eth.Contract(Covid.abi, COVIDADDRESS);
+    const covid = new web3.eth.Contract(Covid.abi, COVID_ADDRESS);
+    const swapPool = new web3.eth.Contract(SwapPool.abi, SWAP_POOL_ADDRESS);
 
     async function getTokenInfo() {
         let _symbol = await covid.methods.symbol().call();
@@ -38,13 +42,15 @@ function MainFrame(props) {
         );
     } else {
         return(
-            <InstanceContext.Provider value={covid}>
+            <CovidContext.Provider value={covid}>
+            <SwapPoolContext.Provider value={swapPool}>
             <TokenInfoContext.Provider value={tokenInfo}>
                 {props.children}
             </TokenInfoContext.Provider>
-            </InstanceContext.Provider>
+            </SwapPoolContext.Provider>
+            </CovidContext.Provider>
         );
     }
 }
 
-export default MainFrame;
+export default ContextComponent;

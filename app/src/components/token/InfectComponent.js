@@ -1,9 +1,9 @@
 import { useWeb3React } from '@web3-react/core';
 import React, { useContext, useState } from 'react';
-import { InstanceContext } from './MainFrame';
+import { CovidContext } from '../context/ContextComponent';
 
 function InfectComponent(props) {
-    const covid = useContext(InstanceContext);
+    const covid = useContext(CovidContext);
     const {account, library: web3} = useWeb3React();
     const [value, setValue] = useState();
 

@@ -1,5 +1,5 @@
 import React, { useContext } from "react";
-import { TokenInfoContext } from "./MainFrame";
+import { TokenInfoContext } from "../context/ContextComponent";
 
 function TotalSupplyComponent() {
     const { totalSupply, decimals, symbol } = useContext(TokenInfoContext);

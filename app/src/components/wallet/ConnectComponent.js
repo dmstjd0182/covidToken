@@ -2,8 +2,8 @@ import { injected } from "./Connectors";
 import { useWeb3React } from "@web3-react/core";
 import React, { useEffect, useState } from 'react';
 
-function ConnectComponents() {
-    const {account, activate, deactivate} = useWeb3React();
+function ConnectComponents(props) {
+    const {active, account, activate, deactivate} = useWeb3React();
     const [isConnected, setIsConnected] = useState(false);
 
     async function connect() {
@@ -38,10 +38,11 @@ function ConnectComponents() {
 
     return (
         <div>
-            {isConnected ? 
+            {isConnected && active? 
             <span>
                 <button onClick={disconnect}>Disconnect</button><br />
                 내 주소: {account}
+                {props.children}
             </span> : 
             <span>
                 <button onClick={connect}>Connect to wallet</button><br />

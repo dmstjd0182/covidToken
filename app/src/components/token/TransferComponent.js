@@ -1,9 +1,9 @@
 import { useWeb3React } from '@web3-react/core';
 import React, { useContext, useState } from 'react';
-import { InstanceContext, TokenInfoContext } from './MainFrame';
+import { CovidContext, TokenInfoContext } from '../context/ContextComponent';
 
 function TransferComponent() {
-    const covid = useContext(InstanceContext);
+    const covid = useContext(CovidContext);
     const { decimals } = useContext(TokenInfoContext);
     const {account} = useWeb3React();
     const [recipient, setRecipient] = useState();

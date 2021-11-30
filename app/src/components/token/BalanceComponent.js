@@ -1,9 +1,9 @@
 import { useWeb3React } from "@web3-react/core";
 import React, { useState, useContext, useEffect } from "react";
-import { InstanceContext, TokenInfoContext } from './MainFrame';
+import { CovidContext, TokenInfoContext } from '../context/ContextComponent';
 
 function BalanceComponent(props) {
-    const covid = useContext(InstanceContext);
+    const covid = useContext(CovidContext);
     const { decimals, symbol } = useContext(TokenInfoContext);
     const {account} = useWeb3React();
     const [balance, setBalance] = useState(0);
