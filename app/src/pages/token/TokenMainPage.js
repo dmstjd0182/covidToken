@@ -12,19 +12,22 @@ function TokenMainPage(props) {
     return (
         <div>
         <p>
-        <p><Link to='/swap'> 거래소로 </Link></p>
-            <div>
-                <p>
-                <TotalSupplyComponent />
-                </p>
-                <EthComponent />
-                <BalanceComponent />
-                <p>
-                <InfectComponent />
-                <TransferComponent />
-                </p>
-                <RewardPoolComponent />
-            </div>
+        <p>
+        <Link to='/swap'> 거래소로 이동 </Link><br />
+        <Link to='/airdrop'> 에어드랍으로 이동 </Link>
+        </p>
+        <div>
+            <p>
+            <TotalSupplyComponent />
+            </p>
+            <EthComponent />
+            <BalanceComponent />
+            <p>
+            <InfectComponent />
+            <TransferComponent />
+            </p>
+            <RewardPoolComponent />
+        </div>
         </p>
         </div>
     );
