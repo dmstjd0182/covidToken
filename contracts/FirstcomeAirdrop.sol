@@ -9,7 +9,7 @@ contract FirstcomeAirdrop is Ownable {
     using SafeMath for uint256;
 
     uint256 public constant AIRDROP_PRICE = 0.02 ether;
-    address public constant SWAP_POOL_ADDRESS = address(0);
+    address public swapPoolAddress;
     uint256 public constant TOTAL_AIRDROP_NUMBER = 10000;
 
     ICovid public covid;
@@ -19,8 +19,9 @@ contract FirstcomeAirdrop is Ownable {
 
     event Airdropped(address to, uint256 amount);
 
-    constructor(ICovid _covid) {
+    constructor(ICovid _covid, address _swapPoolAddress) {
         covid = _covid;
+        swapPoolAddress = _swapPoolAddress;
     }
 
     //에어드랍 수량 설정
@@ -39,7 +40,7 @@ contract FirstcomeAirdrop is Ownable {
 
         //에어드랍 끝나면 swap pool로 비용 모두 전송
         if (airdropCount >= TOTAL_AIRDROP_NUMBER) {
-            payable(SWAP_POOL_ADDRESS).transfer(address(this).balance);
+            payable(swapPoolAddress).transfer(address(this).balance);
         }
         emit Airdropped(msg.sender, airdropAmount);
     }

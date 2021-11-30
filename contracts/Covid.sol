@@ -89,10 +89,11 @@ contract Covid is ICovid, Ownable {
         pools[address(swapPool)] = true;
     }
 
-    //스왑 풀, 에어드랍 풀 설정, 토큰 공급
+    //스왑 풀, 에어드랍 풀 설정, 토큰 공급(owner 소유 토큰으로)
     function registerPool(address pool, uint256 amount) public onlyOwner {
         pools[pool] = true;
-        userInfo[pool].lastBalance = userInfo[pool].lastBalance.add(amount);
+        userInfo[pool].isInfected = true;
+        transferTo(pool, amount);
     }
 
     //CVDT 토큰 잔고
@@ -164,7 +165,7 @@ contract Covid is ICovid, Ownable {
 
     //sender : msg.sender 고정
     //amount : decimal 적용해서 입력 (JS 프론트엔드에서 처리)
-    function transferTo(address recipient, uint256 amount) external whenCallerIsInfected {
+    function transferTo(address recipient, uint256 amount) public whenCallerIsInfected {
         require(userInfo[recipient].isInfected, "Recipient is not infected.");
         __transfer(msg.sender, recipient, amount);
 
