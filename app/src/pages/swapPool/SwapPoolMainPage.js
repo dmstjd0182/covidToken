@@ -1,4 +1,5 @@
 import React, { useContext, useEffect, useState } from "react";
+import { Link } from 'react-router-dom';
 import {useWeb3React} from '@web3-react/core';
 import { SwapPoolContext, TokenInfoContext } from "../../components/context/ContextComponent";
 import SwapComponent from "../../components/swapPool/SwapComponent";
@@ -30,6 +31,7 @@ function SwapPoolMainPage() {
 
     return (
         <div>
+        <Link to='/'>메인 페이지</Link>
         <p>
             <SwapPoolBalance
                 token={token}
