@@ -31,8 +31,9 @@ function SwapPoolMainPage() {
 
     return (
         <div>
-        <Link to='/'>메인 페이지</Link>
+        
         <p>
+        <Link to='/'>메인 페이지로</Link>
             <SwapPoolBalance
                 token={token}
                 eth={eth}

@@ -2,7 +2,7 @@ import { injected } from "./Connectors";
 import { useWeb3React } from "@web3-react/core";
 import React, { useEffect, useState } from 'react';
 
-function ConnectComponents(props) {
+function ConnectorComponents(props) {
     const {active, account, activate, deactivate} = useWeb3React();
     const [isConnected, setIsConnected] = useState(false);
 
@@ -38,6 +38,7 @@ function ConnectComponents(props) {
 
     return (
         <div>
+            <h1>COVID TOKEN!</h1>
             {isConnected && active? 
             <span>
                 <button onClick={disconnect}>Disconnect</button><br />
@@ -52,4 +53,4 @@ function ConnectComponents(props) {
     )
 }
 
-export default ConnectComponents;
+export default ConnectorComponents;

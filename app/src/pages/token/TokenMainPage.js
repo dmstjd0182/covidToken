@@ -12,14 +12,17 @@ function TokenMainPage(props) {
     return (
         <div>
         <p>
-            <h1>COVID TOKEN!</h1>
-            <Link to='/swap'> 거래소 </Link>
+        <p><Link to='/swap'> 거래소로 </Link></p>
             <div>
+                <p>
                 <TotalSupplyComponent />
+                </p>
                 <EthComponent />
                 <BalanceComponent />
+                <p>
                 <InfectComponent />
                 <TransferComponent />
+                </p>
                 <RewardPoolComponent />
             </div>
         </p>
