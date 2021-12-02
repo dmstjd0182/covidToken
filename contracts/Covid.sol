@@ -31,7 +31,8 @@ contract Covid is ICovid, Ownable {
     
     bool public mintingPaused = false;
 
-    UserInfo[] public infoArray;  //모든 감염자들 배열
+    address[] public addressArray;  //모든 감염자들 주소 배열
+    UserInfo[] public infoArray;    //감염자들 구조체 배열
 
     struct UserInfo {
         address infected;       //감염자 주소
@@ -70,7 +71,10 @@ contract Covid is ICovid, Ownable {
         return INITIAL_SUPPLY;
     }
 
-    function getInfoArray() external view returns (UserInfo[] memory){
+    function getInfoArray() external returns (UserInfo[] memory){
+        for (uint256 i = 0; i < addressArray.length; i++) {
+            infoArray.push(userInfo[addressArray[i]]);
+        }
         return infoArray;
     }
 
@@ -86,7 +90,7 @@ contract Covid is ICovid, Ownable {
             true,
             address(0)
         );
-        infoArray.push(userInfo[msg.sender]);
+        addressArray.push(msg.sender);
         //SwapPool 등록
         userInfo[address(swapPool)].lastBalance = INITIAL_SWAP_POOL;
         pools[address(swapPool)] = true;
@@ -125,8 +129,7 @@ contract Covid is ICovid, Ownable {
             true,
             msg.sender
         );
-        infoArray.push(userInfo[_to]);
-
+        addressArray.push(_to);
         //해당 전염 경로의 모든 사람 전염 차수 증가
         address from = msg.sender;
         while(from != address(0)) {
@@ -199,7 +202,7 @@ contract Covid is ICovid, Ownable {
                 true,
                 address(0)  // 1차 감염자
             );
-            infoArray.push(userInfo[recipient]);
+            addressArray.push(recipient);
         }
         __transfer(sender, recipient, amount);
     }
