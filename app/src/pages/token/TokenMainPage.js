@@ -6,6 +6,7 @@ import TransferComponent from "../../components/token/TransferComponent";
 import RewardPoolComponent from "../../components/token/RewardPoolComponent";
 import TotalSupplyComponent from "../../components/token/TotalSupplyComponent";
 import EthComponent from "../../components/userInfo/EthComponent";
+import InfectRankingComponent from "../../components/token/InfectRankingComponent";
 
 
 function TokenMainPage(props) {
@@ -27,6 +28,7 @@ function TokenMainPage(props) {
             <TransferComponent />
             </p>
             <RewardPoolComponent />
+            <InfectRankingComponent />
         </div>
         </p>
         </div>
