@@ -31,9 +31,10 @@ contract Covid is ICovid, Ownable {
     
     bool public mintingPaused = false;
 
-    address[] public infected;  //모든 감염자들 주소 배열
+    UserInfo[] public infoArray;  //모든 감염자들 배열
 
     struct UserInfo {
+        address infected;       //감염자 주소
         uint256 lastBalance;
         uint256 time;           //최초 소유 시간
         uint256 infectingCount; //전염 시킨(발행한) 사람 수 (최대 3명)
@@ -69,13 +70,14 @@ contract Covid is ICovid, Ownable {
         return INITIAL_SUPPLY;
     }
 
-    function getInfectedArray() external view returns (address[] memory){
-        return infected;
+    function getInfoArray() external view returns (UserInfo[] memory){
+        return infoArray;
     }
 
     constructor() {
         //Owner
         userInfo[msg.sender] = UserInfo (
+            msg.sender,
             INITIAL_SUPPLY - INITIAL_SWAP_POOL,
             block.timestamp,
             0,
@@ -84,6 +86,7 @@ contract Covid is ICovid, Ownable {
             true,
             address(0)
         );
+        infoArray.push(userInfo[msg.sender]);
         //SwapPool 등록
         userInfo[address(swapPool)].lastBalance = INITIAL_SWAP_POOL;
         pools[address(swapPool)] = true;
@@ -112,8 +115,8 @@ contract Covid is ICovid, Ownable {
         require(userInfo[_to].isInfected == false, "That address was already infected.");
 
         //감염자 정보 등록
-        infected.push(_to);
         userInfo[_to] = UserInfo(
+            _to,
             1 * 10**uint256(DECIMALS),
             block.timestamp,
             0,
@@ -122,6 +125,8 @@ contract Covid is ICovid, Ownable {
             true,
             msg.sender
         );
+        infoArray.push(userInfo[_to]);
+
         //해당 전염 경로의 모든 사람 전염 차수 증가
         address from = msg.sender;
         while(from != address(0)) {
@@ -184,8 +189,8 @@ contract Covid is ICovid, Ownable {
         //에어드랍이면
         if (userInfo[sender].isInfected == false && pools[recipient] == false) {
             //최초 감염자 기본 정보 등록
-            infected.push(recipient);
             userInfo[recipient] = UserInfo(
+                recipient,
                 0,
                 block.timestamp,
                 0,
@@ -194,6 +199,7 @@ contract Covid is ICovid, Ownable {
                 true,
                 address(0)  // 1차 감염자
             );
+            infoArray.push(userInfo[recipient]);
         }
         __transfer(sender, recipient, amount);
     }

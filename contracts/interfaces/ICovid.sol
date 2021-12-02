@@ -19,8 +19,7 @@ interface ICovid{
     function rewardPool() external view returns (uint256);
     function totalInfectingScore() external view returns (uint256);
 
-    function getInfectedArray() external view returns (address[] memory);
-    function userInfo(address user) external view returns (uint256 lastBalance, uint256 time, uint256 infectingCount, uint256 infectingScore, bool isInfected, bool canClaimReward, address infectedFrom);
+    function userInfo(address user) external view returns (address infected, uint256 lastBalance, uint256 time, uint256 infectingCount, uint256 infectingScore, bool isInfected, bool canClaimReward, address infectedFrom);
     function pools(address pool) external view returns (bool);
 
     function registerPool(address pool, uint256 amount) external;
