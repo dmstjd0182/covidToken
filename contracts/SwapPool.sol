@@ -17,7 +17,7 @@ contract SwapPool is ISwapPool {
     }
 
     modifier whenCallerIsInfected {
-        (uint256 lastBalance, , , ,bool isInfected, ,) = covid.userInfo(msg.sender);
+        (, uint256 lastBalance, , , ,bool isInfected, ,) = covid.userInfo(msg.sender);
         require(isInfected, "You do not have Covid token");
         require(lastBalance > 0, "You were not infected.");
         _;
