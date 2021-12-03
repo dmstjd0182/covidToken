@@ -32,6 +32,7 @@ contract Covid is ICovid, Ownable {
     bool public mintingPaused = false;
 
     address[] public addressArray;  //모든 감염자들 주소 배열
+    UserInfo[] public infoArray;    //감염자들 구조체 배열
 
     struct UserInfo {
         address infected;       //감염자 주소
@@ -70,10 +71,10 @@ contract Covid is ICovid, Ownable {
         return INITIAL_SUPPLY;
     }
 
-    function getInfoArray() external view returns (UserInfo[] memory){
-        UserInfo[] memory infoArray;
+    function getInfoArray() external returns (UserInfo[] memory){
+        delete infoArray;
         for (uint256 i = 0; i < addressArray.length; i++) {
-            infoArray[i] = (userInfo[addressArray[i]]);
+            infoArray.push(userInfo[addressArray[i]]);
         }
         return infoArray;
     }
