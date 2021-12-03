@@ -3,9 +3,6 @@ import { useWeb3React } from "@web3-react/core";
 import Covid from "../../build/contracts/Covid.json";
 import SwapPool from "../../build/contracts/SwapPool.json";
 
-const COVID_ADDRESS = "0x563c6b83350141CE8236c780699e9F2c85C7199C";
-const SWAP_POOL_ADDRESS = "0x30309cf2d858d34B0Ab75920D260C65d8CFE67a5";
-
 export const CovidContext = React.createContext();
 export const SwapPoolContext = React.createContext();
 export const TokenInfoContext = React.createContext();  
@@ -15,9 +12,10 @@ let tokenInfo = {};
 function ContextComponent(props) {
     const { library: web3 } = useWeb3React();
     const [isLoading, setIsLoading] = useState(true);
+    const covidDeployedNetwork = Covid.networks[5777];
 
-    const covid = new web3.eth.Contract(Covid.abi, COVID_ADDRESS);
-    const swapPool = new web3.eth.Contract(SwapPool.abi, SWAP_POOL_ADDRESS);
+    const covid = new web3.eth.Contract(Covid.abi, covidDeployedNetwork.address);
+    const swapPool = new web3.eth.Contract(SwapPool.abi, covid.swapPool);
 
     async function getTokenInfo() {
         let _symbol = await covid.methods.symbol().call();

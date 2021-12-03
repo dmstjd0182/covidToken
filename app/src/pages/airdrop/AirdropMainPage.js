@@ -5,12 +5,11 @@ import FirstcomeAirdrop from '../../build/contracts/FirstcomeAirdrop.json';
 import AirdropCount from "../../components/airdrop/AirdropCount";
 import Airdrop from "../../components/airdrop/Airdrop";
 
-const AIRDROP_ADDRESS = '0xB6C680D171884D1e8EB617dE6374BD0274A06475';
-
 function AirdropMainPage() {
     const {library: web3} = useWeb3React();
+    const airdropDeployedNetwork = FirstcomeAirdrop.networks[5777];
 
-    const airdrop = new web3.eth.Contract(FirstcomeAirdrop.abi, AIRDROP_ADDRESS);
+    const airdrop = new web3.eth.Contract(FirstcomeAirdrop.abi, airdropDeployedNetwork.address);
 
     return(
         <div>
