@@ -3,8 +3,8 @@ import { useWeb3React } from "@web3-react/core";
 import Covid from "../../build/contracts/Covid.json";
 import SwapPool from "../../build/contracts/SwapPool.json";
 
-const COVID_ADDRESS = "0xb3f84b294C8b9f29231a3471dc40a620D8b018ED";
-const SWAP_POOL_ADDRESS = "0xF678D54ef1F5A070620F099f72868C3b0bCABb7a";
+const COVID_ADDRESS = "0x563c6b83350141CE8236c780699e9F2c85C7199C";
+const SWAP_POOL_ADDRESS = "0x30309cf2d858d34B0Ab75920D260C65d8CFE67a5";
 
 export const CovidContext = React.createContext();
 export const SwapPoolContext = React.createContext();

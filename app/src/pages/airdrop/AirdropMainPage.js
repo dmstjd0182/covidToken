@@ -5,7 +5,7 @@ import FirstcomeAirdrop from '../../build/contracts/FirstcomeAirdrop.json';
 import AirdropCount from "../../components/airdrop/AirdropCount";
 import Airdrop from "../../components/airdrop/Airdrop";
 
-const AIRDROP_ADDRESS = '0x3c985ca1d1Bc97341089A869a70E4c274f3e48ab';
+const AIRDROP_ADDRESS = '0xB6C680D171884D1e8EB617dE6374BD0274A06475';
 
 function AirdropMainPage() {
     const {library: web3} = useWeb3React();

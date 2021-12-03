@@ -1,7 +1,7 @@
 import React from 'react';
 import {BrowserRouter, Route, Link, Routes} from 'react-router-dom';
 import './App.css';
-import Web3ReactComponent from './components/web3React/Web3ReactComponent';
+import Web3ReactComponent from './components/utils/Web3ReactComponent';
 import TokenMainPage from './pages/token/TokenMainPage';
 import SwapPoolMainPage from './pages/swapPool/SwapPoolMainPage';
 import AirdropMainPage from './pages/airdrop/AirdropMainPage';
