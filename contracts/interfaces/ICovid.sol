@@ -26,6 +26,6 @@ interface ICovid{
     function balanceOf(address user) external view returns (uint256 balance);
     function infectTo(address _to) payable external returns (bool);
     function claimReward() external;
-    function transferTo(address recipient, uint256 amount) external;
-    function poolTransfer(address from, address to, uint256 amount) external;
+    function transfer(address _to, uint256 _value) external returns (bool success);
+    function transferFrom(address _from, address _to, uint256 _value) external returns (bool success);
 }

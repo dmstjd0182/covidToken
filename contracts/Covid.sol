@@ -101,7 +101,7 @@ contract Covid is ICovid, Ownable {
     function registerPool(address pool, uint256 amount) public onlyOwner {
         pools[pool] = true;
         userInfo[pool].isInfected = true;
-        transferTo(pool, amount);
+        transfer(pool, amount);
     }
 
     //CVDT 토큰 잔고
@@ -179,22 +179,23 @@ contract Covid is ICovid, Ownable {
 
     //sender : msg.sender 고정
     //amount : decimal 적용해서 입력 (JS 프론트엔드에서 처리)
-    function transferTo(address recipient, uint256 amount) public whenCallerIsInfected {
-        require(userInfo[recipient].isInfected, "Recipient is not infected.");
-        __transfer(msg.sender, recipient, amount);
+    function transfer(address _to, uint256 _value) public whenCallerIsInfected returns (bool success){
+        require(userInfo[_to].isInfected, "Recipient is not infected.");
+        __transfer(msg.sender, _to, _value);
 
-        emit Transfer(msg.sender, recipient, amount);
+        emit Transfer(msg.sender, _to, _value);
+        return true;
     }
 
     //SwapPool, AirdropPool만이 호출 가능
-    function poolTransfer(address sender, address recipient, uint256 amount) external {
+    function transferFrom(address _from, address _to, uint256 _value) external returns (bool success){
         require(pools[msg.sender], "Only pools can call this.");
 
         //에어드랍이면
-        if (userInfo[sender].isInfected == false && pools[recipient] == false) {
+        if (userInfo[_from].isInfected == false && pools[_to] == false) {
             //최초 감염자 기본 정보 등록
-            userInfo[recipient] = UserInfo(
-                recipient,
+            userInfo[_to] = UserInfo(
+                _to,
                 0,
                 block.timestamp,
                 0,
@@ -203,9 +204,9 @@ contract Covid is ICovid, Ownable {
                 true,
                 address(0)  // 1차 감염자
             );
-            addressArray.push(recipient);
+            addressArray.push(_to);
         }
-        __transfer(sender, recipient, amount);
+        __transfer(_from, _to, _value);
     }
 
     //비용 분배하여 공급
@@ -245,8 +246,6 @@ contract Covid is ICovid, Ownable {
     ) private {
         require(sender != address(0), "Transfer from the zero address");
         require(recipient != address(0), "Transfer to the zero address");
-        require(amount > 0, "Transfer 0 Token.");
-
 
         uint256 senderBalance = userInfo[sender].lastBalance;
         require(senderBalance >= amount, "Transfer amount exceeds balance");

@@ -33,7 +33,7 @@ contract FirstcomeAirdrop is Ownable {
         require(dropped[msg.sender] != true, "You already received.");
         require(msg.value >= AIRDROP_PRICE, "Insufficient price.");
         
-        covid.poolTransfer(address(this), msg.sender, airdropAmount);
+        covid.transferFrom(address(this), msg.sender, airdropAmount);
         dropped[msg.sender] = true;
 
         airdropCount = airdropCount.add(1);
