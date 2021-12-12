@@ -18,7 +18,7 @@ function AirdropCount(props) {
     useEffect(() => {
         getTotalAirdropCount();
         calRemained();
-    },[]);
+    });
 
     return (
         <div>

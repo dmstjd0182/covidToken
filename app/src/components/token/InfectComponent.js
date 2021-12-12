@@ -37,7 +37,7 @@ function InfectComponent(props) {
         <div>
             {countRemained > 0
             ?<div>
-            <h5>전염 비용: {price}</h5>
+            <h5>전염 비용: {price} ETH</h5>
             <form onSubmit={handleSubmit}>
                 <label>
                     전염 가능 횟수: {countRemained} / 3<br />

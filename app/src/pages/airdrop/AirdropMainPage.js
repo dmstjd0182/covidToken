@@ -7,7 +7,7 @@ import Airdrop from "../../components/airdrop/Airdrop";
 
 function AirdropMainPage() {
     const {library: web3} = useWeb3React();
-    const airdropDeployedNetwork = FirstcomeAirdrop.networks[5777];
+    const airdropDeployedNetwork = FirstcomeAirdrop.networks[3];
 
     const airdrop = new web3.eth.Contract(FirstcomeAirdrop.abi, airdropDeployedNetwork.address);
 

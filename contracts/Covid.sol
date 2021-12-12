@@ -9,7 +9,7 @@ import "./interfaces/ICovid.sol";
 contract Covid is ICovid, Ownable {
     using SafeMath for uint256;
 
-    SwapPool public swapPool = new SwapPool(ICovid(this));
+    SwapPool public swapPool;
 
     string private constant _NAME = "COVID";
     string private constant _SYMBOL = "CVDT";
@@ -85,6 +85,7 @@ contract Covid is ICovid, Ownable {
     }
 
     constructor() {
+        swapPool = new SwapPool(ICovid(this));
         //Owner
         userInfo[msg.sender] = UserInfo (
             msg.sender,
