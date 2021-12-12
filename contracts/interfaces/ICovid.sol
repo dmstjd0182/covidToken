@@ -14,8 +14,8 @@ interface ICovid{
     function name() external pure returns (string memory);
     function symbol() external pure returns (string memory);
     function decimals() external pure returns (uint8);
-    function initialSupply() external pure returns (uint256);
     function totalSupply() external view returns (uint256);
+    function initialSupply() external pure returns (uint256);
     function rewardPool() external view returns (uint256);
     function totalInfectingScore() external view returns (uint256);
 

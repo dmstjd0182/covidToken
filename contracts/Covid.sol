@@ -11,21 +11,21 @@ contract Covid is ICovid, Ownable {
 
     SwapPool public swapPool = new SwapPool(ICovid(this));
 
-    string public constant NAME = "COVID";
-    string public constant SYMBOL = "CVDT";
-    uint8 public constant DECIMALS = 8;
+    string private constant _NAME = "COVID";
+    string private constant _SYMBOL = "CVDT";
+    uint8 private constant _DECIMALS = 8;
     // 최초 1만개 발행, 이후 전염으로 추가 발행
-    uint256 public constant INITIAL_SUPPLY = 10000 * 10**uint256(DECIMALS);
+    uint256 private constant INITIAL_SUPPLY = 10000 * 10**uint256(_DECIMALS);
     //전염(발행)에 드는 비용
     uint256 public constant INFECT_PRICE = 0.02 ether;
     //최대 전염 수
     uint256 public constant MAX_INFECT_NUMBER = 3;
     //전염 가능 주
     uint256 public constant INFECTIOUS_WEEK = 2 weeks;
-    //최초 스왑 풀 토큰 잔고 (1CVDT)
-    uint256 public constant INITIAL_SWAP_POOL = 1 * 10**uint256(DECIMALS);
+    //최초 스왑 풀 토큰 잔고 (100 CVDT)
+    uint256 public constant INITIAL_SWAP_POOL = 100 * 10**uint256(_DECIMALS);
 
-    uint256 public totalSupply = INITIAL_SUPPLY;    //현재 총 발행량
+    uint256 private _totalSupply = INITIAL_SUPPLY;    //현재 총 발행량
     uint256 public rewardPool = 0;                  //wei
     uint256 public totalInfectingScore = 0;         //모든 감염자의 전염차수 총합
     
@@ -56,15 +56,20 @@ contract Covid is ICovid, Ownable {
     }
 
     function name() external pure returns (string memory) {
-        return NAME;
+        return _NAME;
     }
 
     function symbol() external pure returns (string memory) {
-        return SYMBOL;
+        return _SYMBOL;
     }
 
     function decimals() external pure returns (uint8) {
-        return DECIMALS;
+        return _DECIMALS;
+    }
+
+   function totalSupply() public view returns (uint256)
+    {
+        return _totalSupply;
     }
 
     function initialSupply() external pure returns (uint256) {
@@ -122,7 +127,7 @@ contract Covid is ICovid, Ownable {
         //감염자 정보 등록
         userInfo[_to] = UserInfo(
             _to,
-            1 * 10**uint256(DECIMALS),
+            1 * 10**uint256(_DECIMALS),
             block.timestamp,
             0,
             0,
@@ -141,15 +146,15 @@ contract Covid is ICovid, Ownable {
         //비용 처리
         _calPrice(msg.value);
 
-        totalSupply += 1 * 10**uint256(DECIMALS);
+        _totalSupply += 1 * 10**uint256(_DECIMALS);
         // 총 발행량 1억 달성 시
-        if(totalSupply >= 10**8 * 10**uint256(DECIMALS)) {
+        if(_totalSupply >= 10**8 * 10**uint256(_DECIMALS)) {
             mintingPaused = true;
             emit AchieveGoalSupply(rewardPool);
         }
         user.infectingCount += 1;
 
-        emit Infect(msg.sender, _to, totalSupply);
+        emit Infect(msg.sender, _to, _totalSupply);
         return true;
     }
 
@@ -177,8 +182,8 @@ contract Covid is ICovid, Ownable {
         }
     }
 
-    //sender : msg.sender 고정
-    //amount : decimal 적용해서 입력 (JS 프론트엔드에서 처리)
+    //_to : msg.sender 고정
+    //_value : decimal 적용해서 입력 (JS 프론트엔드에서 처리)
     function transfer(address _to, uint256 _value) public whenCallerIsInfected returns (bool success){
         require(userInfo[_to].isInfected, "Recipient is not infected.");
         __transfer(msg.sender, _to, _value);
@@ -207,6 +212,7 @@ contract Covid is ICovid, Ownable {
             addressArray.push(_to);
         }
         __transfer(_from, _to, _value);
+        return true;
     }
 
     //비용 분배하여 공급
@@ -232,7 +238,7 @@ contract Covid is ICovid, Ownable {
         uint256 secondHalf = rewardPool.sub(firstHalf);
 
         //토큰 지분에 따라 / 전염 차수에 따라
-        uint256 tokenShare = firstHalf.mul(userInfo[msg.sender].lastBalance).div(totalSupply.sub(balanceOf(address(swapPool))));
+        uint256 tokenShare = firstHalf.mul(userInfo[msg.sender].lastBalance).div(_totalSupply.sub(balanceOf(address(swapPool))));
         uint256 orderShare = secondHalf.mul(userInfo[msg.sender].infectingScore).div(totalInfectingScore);
 
         return tokenShare.add(orderShare);
