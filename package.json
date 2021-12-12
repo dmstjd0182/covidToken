@@ -22,5 +22,8 @@
   "dependencies": {
     "@openzeppelin/contracts": "^4.3.3",
     "yarn": "^1.22.17"
+  },
+  "devDependencies": {
+    "@truffle/hdwallet-provider": "^2.0.0"
   }
 }
