@@ -194,7 +194,7 @@ contract Covid is ICovid, Ownable {
     }
 
     //스왑 풀, 에어드랍 풀만이 호출 가능
-    function poolTransfer(address sender, address recipient, uint256 amount) public returns (bool success) {
+    function poolTransfer(address sender, address recipient, uint256 amount) external returns (bool success) {
         require(pools[msg.sender], "Only pools can call this.");
 
         //에어드랍이면 감염자 등록
