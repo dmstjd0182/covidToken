@@ -36,7 +36,7 @@ contract Covid is ICovid, Ownable {
 
     struct UserInfo {
         address infected;       //감염자 주소
-        uint256 lastBalance;
+        uint256 balance;
         uint256 time;           //최초 소유 시간
         uint256 infectingCount; //전염 시킨(발행한) 사람 수 (최대 3명)
         uint256 infectingScore; //전염 차수
@@ -50,7 +50,7 @@ contract Covid is ICovid, Ownable {
 
     //토큰 소유중인 주소가 호출할 때만
     modifier whenCallerIsInfected {
-        require(userInfo[msg.sender].lastBalance > 0, "You do not have Covid token");
+        require(userInfo[msg.sender].balance > 0, "You do not have Covid token");
         require(userInfo[msg.sender].isInfected, "You were not infected.");
         _;
     }
@@ -99,7 +99,7 @@ contract Covid is ICovid, Ownable {
         );
         addressArray.push(msg.sender);
         //SwapPool 등록
-        userInfo[address(swapPool)].lastBalance = INITIAL_SWAP_POOL;
+        userInfo[address(swapPool)].balance = INITIAL_SWAP_POOL;
         pools[address(swapPool)] = true;
     }
 
@@ -112,7 +112,7 @@ contract Covid is ICovid, Ownable {
 
     //CVDT 토큰 잔고
     function balanceOf(address user) public view returns (uint256 balance) {
-        return userInfo[user].lastBalance;
+        return userInfo[user].balance;
     }
 
     //전염시키기
@@ -239,7 +239,7 @@ contract Covid is ICovid, Ownable {
         uint256 secondHalf = rewardPool.sub(firstHalf);
 
         //토큰 지분에 따라 / 전염 차수에 따라
-        uint256 tokenShare = firstHalf.mul(userInfo[msg.sender].lastBalance).div(_totalSupply.sub(balanceOf(address(swapPool))));
+        uint256 tokenShare = firstHalf.mul(userInfo[msg.sender].balance).div(_totalSupply.sub(balanceOf(address(swapPool))));
         uint256 orderShare = secondHalf.mul(userInfo[msg.sender].infectingScore).div(totalInfectingScore);
 
         return tokenShare.add(orderShare);
@@ -254,11 +254,11 @@ contract Covid is ICovid, Ownable {
         require(sender != address(0), "Transfer from the zero address");
         require(recipient != address(0), "Transfer to the zero address");
 
-        uint256 senderBalance = userInfo[sender].lastBalance;
+        uint256 senderBalance = userInfo[sender].balance;
         require(senderBalance >= amount, "Transfer amount exceeds balance");
 
-        userInfo[sender].lastBalance = senderBalance - amount;
+        userInfo[sender].balance = senderBalance - amount;
         
-        userInfo[recipient].lastBalance = userInfo[recipient].lastBalance.add(amount);
+        userInfo[recipient].balance = userInfo[recipient].balance.add(amount);
     }
 }

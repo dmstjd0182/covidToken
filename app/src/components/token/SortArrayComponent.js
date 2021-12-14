@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import InfectedInfoComponent from "./InfectedInfoComponent";
 
 function SortArrayComponent(props){
@@ -8,7 +8,7 @@ function SortArrayComponent(props){
 
     function sortInfoArray() {
         //infectingScore 기준 내림차순 정렬
-        infoArray.sort((a, b) =>  b[4] - a[4] );
+        infoArray.sort((a, b) =>  b.infectingScore - a.infectingScore );
         setIsLoading(false);
     }
     

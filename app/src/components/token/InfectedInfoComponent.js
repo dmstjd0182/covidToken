@@ -5,8 +5,8 @@ function InfectedInfoComponent(props) {
 
     let result = infoArray.map((user) => {
         return(
-            <li key={user[0]}>
-                {user[0]} : {user[4]}
+            <li key={user.infected}>
+                {user.infected} : {user.infectingScore}
             </li>
         );
     })
