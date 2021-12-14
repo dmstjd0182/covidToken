@@ -11,5 +11,4 @@ interface ISwapPool {
 
     function swapToCVDT() external payable;
     function swapToETH(uint256 amount) external;
-    function addLiquidity() external payable;
 }
