@@ -52,4 +52,14 @@ contract SwapPool is ISwapPool {
 
         emit SwapToETH(msg.sender, amount, lastETH.sub(newETH));
     }
+
+    function addLiquidity() external payable whenCallerIsInfected{
+        require(getSwapPoolETH() >= msg.value, 'Please add Liquidity under ETH balance.');
+        uint256 lastETH = getSwapPoolETH().sub(msg.value);
+        uint256 lastCVDT = getSwapPoolBalance();
+
+        uint256 inputCVDT = lastCVDT.mul(msg.value).div(lastETH);
+
+        covid.poolTransfer(msg.sender, address(this), inputCVDT);
+    }
 }
