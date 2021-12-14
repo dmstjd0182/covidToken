@@ -19,8 +19,8 @@ contract FirstcomeAirdrop is Ownable {
 
     event Airdropped(address to, uint256 amount);
 
-    constructor(ICovid _covid, address _swapPoolAddress) {
-        covid = _covid;
+    constructor(address _covid, address _swapPoolAddress) {
+        covid = ICovid(_covid);
         swapPoolAddress = _swapPoolAddress;
     }
 
@@ -33,7 +33,7 @@ contract FirstcomeAirdrop is Ownable {
         require(dropped[msg.sender] != true, "You already received.");
         require(msg.value >= AIRDROP_PRICE, "Insufficient price.");
         
-        covid.transferFrom(address(this), msg.sender, airdropAmount);
+        covid.poolTransfer(address(this), msg.sender, airdropAmount);
         dropped[msg.sender] = true;
 
         airdropCount = airdropCount.add(1);

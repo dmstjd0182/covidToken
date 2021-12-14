@@ -15,7 +15,7 @@ contract Covid is ICovid, Ownable {
     string private constant _SYMBOL = "CVDT";
     uint8 private constant _DECIMALS = 8;
     // 최초 1만개 발행, 이후 전염으로 추가 발행
-    uint256 private constant INITIAL_SUPPLY = 10000 * 10**uint256(_DECIMALS);
+    uint256 private constant _INITIAL_SUPPLY = 10000 * 10**uint256(_DECIMALS);
     //전염(발행)에 드는 비용
     uint256 public constant INFECT_PRICE = 0.02 ether;
     //최대 전염 수
@@ -25,7 +25,7 @@ contract Covid is ICovid, Ownable {
     //최초 스왑 풀 토큰 잔고 (100 CVDT)
     uint256 public constant INITIAL_SWAP_POOL = 100 * 10**uint256(_DECIMALS);
 
-    uint256 private _totalSupply = INITIAL_SUPPLY;    //현재 총 발행량
+    uint256 private _totalSupply = _INITIAL_SUPPLY;    //현재 총 발행량
     uint256 public rewardPool = 0;                  //wei
     uint256 public totalInfectingScore = 0;         //모든 감염자의 전염차수 총합
     
@@ -45,6 +45,7 @@ contract Covid is ICovid, Ownable {
         address infectedFrom;
     }
 
+    mapping(address => mapping(address => uint256)) private _allowances;
     mapping(address => UserInfo) public userInfo;
     mapping(address => bool) public pools;
 
@@ -67,13 +68,12 @@ contract Covid is ICovid, Ownable {
         return _DECIMALS;
     }
 
-   function totalSupply() public view returns (uint256)
-    {
+   function totalSupply() public view returns (uint256) {
         return _totalSupply;
     }
 
     function initialSupply() external pure returns (uint256) {
-        return INITIAL_SUPPLY;
+        return _INITIAL_SUPPLY;
     }
 
     function getInfoArray() external returns (UserInfo[] memory){
@@ -85,11 +85,11 @@ contract Covid is ICovid, Ownable {
     }
 
     constructor() {
-        swapPool = new SwapPool(ICovid(this));
+        swapPool = new SwapPool(address(this));
         //Owner
         userInfo[msg.sender] = UserInfo (
             msg.sender,
-            INITIAL_SUPPLY - INITIAL_SWAP_POOL,
+            _INITIAL_SUPPLY - INITIAL_SWAP_POOL,
             block.timestamp,
             0,
             0,
@@ -100,19 +100,28 @@ contract Covid is ICovid, Ownable {
         addressArray.push(msg.sender);
         //SwapPool 등록
         userInfo[address(swapPool)].balance = INITIAL_SWAP_POOL;
+        userInfo[address(swapPool)].isInfected = true;
         pools[address(swapPool)] = true;
     }
 
-    //스왑 풀, 에어드랍 풀 설정, 토큰 공급(owner 소유 토큰으로)
-    function registerPool(address pool, uint256 amount) public onlyOwner {
+    //스왑 풀, 에어드랍 풀 등록
+    function registerPool(address pool) public onlyOwner {
         pools[pool] = true;
         userInfo[pool].isInfected = true;
-        transfer(pool, amount);
     }
 
     //CVDT 토큰 잔고
     function balanceOf(address user) public view returns (uint256 balance) {
         return userInfo[user].balance;
+    }
+
+    function allowance(address owner, address spender) public view returns (uint256) {
+        return _allowances[owner][spender];
+    }
+
+    function approve(address spender, uint256 amount) public virtual override returns (bool) {
+        _approve(msg.sender, spender, amount);
+        return true;
     }
 
     //전염시키기
@@ -156,6 +165,7 @@ contract Covid is ICovid, Ownable {
         user.infectingCount += 1;
 
         emit Infect(msg.sender, _to, _totalSupply);
+        emit Transfer(address(0), _to, 1 * 10**uint256(_DECIMALS));     //ERC20
         return true;
     }
 
@@ -183,37 +193,55 @@ contract Covid is ICovid, Ownable {
         }
     }
 
-    //_to : msg.sender 고정
-    //_value : decimal 적용해서 입력 (JS 프론트엔드에서 처리)
-    function transfer(address _to, uint256 _value) public whenCallerIsInfected returns (bool success){
-        require(userInfo[_to].isInfected, "Recipient is not infected.");
-        __transfer(msg.sender, _to, _value);
-
-        emit Transfer(msg.sender, _to, _value);
-        return true;
-    }
-
-    //SwapPool, AirdropPool만이 호출 가능
-    function transferFrom(address _from, address _to, uint256 _value) external returns (bool success){
+    //스왑 풀, 에어드랍 풀만이 호출 가능
+    function poolTransfer(address sender, address recipient, uint256 amount) public returns (bool success) {
         require(pools[msg.sender], "Only pools can call this.");
 
-        //에어드랍이면
-        if (userInfo[_from].isInfected == false && pools[_to] == false) {
-            //최초 감염자 기본 정보 등록
-            userInfo[_to] = UserInfo(
-                _to,
+        //에어드랍이면 감염자 등록
+        if(userInfo[recipient].isInfected == false) {
+            userInfo[recipient] = UserInfo(
+                recipient,
                 0,
                 block.timestamp,
                 0,
                 0,
                 true,
                 true,
-                address(0)  // 1차 감염자
+                address(0)      //최초 감염자
             );
-            addressArray.push(_to);
         }
-        __transfer(_from, _to, _value);
+        _transfer(sender, recipient, amount);
+
         return true;
+    }
+
+    function transfer(address recipient, uint256 amount) public whenCallerIsInfected returns (bool success){
+        _transfer(msg.sender, recipient, amount);
+
+        return true;
+    }
+
+    function transferFrom(address sender, address recipient, uint256 amount) public whenCallerIsInfected returns (bool success){
+        _transfer(sender, recipient, amount);
+
+        uint256 currentAllowance = _allowances[sender][msg.sender];
+        require(currentAllowance >= amount, "ERC20: transfer amount exceeds allowance");
+        _approve(sender, msg.sender, currentAllowance.sub(amount));
+
+        return true;
+    }
+
+    function _approve(
+        address owner,
+        address spender,
+        uint256 amount
+    ) private {
+        require(owner != address(0), "ERC20: approve from the zero address");
+        require(spender != address(0), "ERC20: approve to the zero address");
+        require(userInfo[spender].isInfected, "approve to uninfected.");
+
+        _allowances[owner][spender] = amount;
+        emit Approval(owner, spender, amount);
     }
 
     //비용 분배하여 공급
@@ -245,20 +273,21 @@ contract Covid is ICovid, Ownable {
         return tokenShare.add(orderShare);
     }
 
-    //ERC20 표준 참조
-    function __transfer(
+    function _transfer(
         address sender,
         address recipient,
         uint256 amount
     ) private {
         require(sender != address(0), "Transfer from the zero address");
         require(recipient != address(0), "Transfer to the zero address");
+        require(userInfo[recipient].isInfected, "Recipient is not infected.");
 
         uint256 senderBalance = userInfo[sender].balance;
         require(senderBalance >= amount, "Transfer amount exceeds balance");
 
-        userInfo[sender].balance = senderBalance - amount;
-        
+        userInfo[sender].balance = senderBalance.sub(amount);
         userInfo[recipient].balance = userInfo[recipient].balance.add(amount);
+
+        emit Transfer(sender, recipient, amount);
     }
 }

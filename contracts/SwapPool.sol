@@ -12,14 +12,14 @@ contract SwapPool is ISwapPool {
 
     receive () payable external {}
 
-    constructor(ICovid _covid) {
-        covid = _covid;
+    constructor(address _covid) {
+        covid = ICovid(_covid);
     }
 
     modifier whenCallerIsInfected {
-        (, uint256 lastBalance, , , ,bool isInfected, ,) = covid.userInfo(msg.sender);
+        (, uint256 balance, , , ,bool isInfected, ,) = covid.userInfo(msg.sender);
         require(isInfected, "You do not have Covid token");
-        require(lastBalance > 0, "You were not infected.");
+        require(balance > 0, "You were not infected.");
         _;
     }
 
@@ -36,7 +36,7 @@ contract SwapPool is ISwapPool {
 
         uint256 newCVDT = (newETH.sub(msg.value)).mul(lastCVDT).div(newETH);
 
-        covid.transferFrom(address(this), msg.sender, lastCVDT.sub(newCVDT));
+        covid.transfer(msg.sender, lastCVDT.sub(newCVDT));
 
         emit SwapToCVDT(msg.sender, msg.value, lastCVDT.sub(newCVDT));
     }
@@ -47,7 +47,7 @@ contract SwapPool is ISwapPool {
 
         uint256 newETH = lastCVDT.mul(lastETH).div(lastCVDT.add(amount));
 
-        covid.transferFrom(msg.sender, address(this), amount);
+        covid.poolTransfer(msg.sender, address(this), amount);
         payable(msg.sender).transfer(lastETH.sub(newETH));
 
         emit SwapToETH(msg.sender, amount, lastETH.sub(newETH));
@@ -59,6 +59,6 @@ contract SwapPool is ISwapPool {
 
         uint256 inputCVDT = lastCVDT.mul(msg.value).div(lastETH);
 
-        covid.transferFrom(msg.sender, address(this), inputCVDT);
+        covid.poolTransfer(msg.sender, address(this), inputCVDT);
     }
 }
