@@ -135,17 +135,7 @@ contract Covid is ICovid, Ownable {
         require(userInfo[_to].isInfected == false, "That address was already infected.");
 
         //감염자 정보 등록
-        userInfo[_to] = UserInfo(
-            _to,
-            1 * 10**uint256(_DECIMALS),
-            block.timestamp,
-            0,
-            0,
-            true,
-            true,
-            msg.sender
-        );
-        addressArray.push(_to);
+        _setInfectedInfo(msg.sender, _to, 1 * 10**uint256(_DECIMALS));
         //해당 전염 경로의 모든 사람 전염 차수 증가
         address from = msg.sender;
         while(from != address(0)) {
@@ -199,16 +189,7 @@ contract Covid is ICovid, Ownable {
 
         //에어드랍이면 감염자 등록
         if(userInfo[recipient].isInfected == false) {
-            userInfo[recipient] = UserInfo(
-                recipient,
-                0,
-                block.timestamp,
-                0,
-                0,
-                true,
-                true,
-                address(0)      //최초 감염자
-            );
+            _setInfectedInfo(address(0), recipient, 0);
         }
         _transfer(sender, recipient, amount);
 
@@ -289,5 +270,19 @@ contract Covid is ICovid, Ownable {
         userInfo[recipient].balance = userInfo[recipient].balance.add(amount);
 
         emit Transfer(sender, recipient, amount);
+    }
+
+    function _setInfectedInfo(address from, address infected, uint256 balance) private {
+        userInfo[infected] = UserInfo(
+            infected,
+            balance,
+            block.timestamp,
+            0,
+            0,
+            true,
+            true,
+            from
+        );
+        addressArray.push(infected);
     }
 }
