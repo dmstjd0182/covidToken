@@ -5,6 +5,7 @@ import Web3ReactComponent from './components/utils/Web3ReactComponent';
 import TokenMainPage from './pages/token/TokenMainPage';
 import SwapPoolMainPage from './pages/swapPool/SwapPoolMainPage';
 import AirdropMainPage from './pages/airdrop/AirdropMainPage';
+import AdminMainPage from './pages/admin/AdminMainPage';
 
 function App() {
   return(
@@ -15,6 +16,7 @@ function App() {
           <Route path="/" element={<TokenMainPage />} />
           <Route path="/swap" element={<SwapPoolMainPage />} />
           <Route path='/airdrop' element={<AirdropMainPage />} />
+          <Route path='/admin' element={<AdminMainPage />} />
         </Routes>
       </BrowserRouter>
     </Web3ReactComponent>
