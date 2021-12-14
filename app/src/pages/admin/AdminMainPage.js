@@ -1,6 +1,7 @@
 import { useWeb3React } from "@web3-react/core";
 import React from "react";
 import FirstcomeAirdrop from '../../build/contracts/FirstcomeAirdrop.json';
+import LiquidityComponent from "../../components/admin/LiquidityComponent";
 
 function AdminMainPage() {
     const {library: web3} = useWeb3React();
@@ -10,6 +11,7 @@ function AdminMainPage() {
 
     return (
         <>
+        <LiquidityComponent />
         </>
     );
 }
