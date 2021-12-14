@@ -7,16 +7,19 @@ export const CovidContext = React.createContext();
 export const SwapPoolContext = React.createContext();
 export const TokenInfoContext = React.createContext();  
 
+let covid;
+let swapPool;
 let tokenInfo = {};
 
 function ContextComponent(props) {
     const { library: web3 } = useWeb3React();
     const [isLoading, setIsLoading] = useState(true);
     const covidDeployedNetwork = Covid.networks[3];     //Network ID 설정
-    const SWAP_POOL_ADDRESS = '0x8165d2183Cb07987465A9c3CFAf1946cdFA89Efd';     //SwapPool 주소 설정
 
-    const covid = new web3.eth.Contract(Covid.abi, covidDeployedNetwork.address);
-    const swapPool = new web3.eth.Contract(SwapPool.abi, SWAP_POOL_ADDRESS);
+    async function setContext() {
+        covid = await new web3.eth.Contract(Covid.abi, covidDeployedNetwork.address);
+        swapPool = new web3.eth.Contract(SwapPool.abi, await covid.methods.swapPool().call());
+    }
 
     async function getTokenInfo() {
         let _symbol = await covid.methods.symbol().call();
@@ -27,12 +30,13 @@ function ContextComponent(props) {
             symbol: _symbol,
             decimals: _decimals,
             totalSupply: _totalSupply,
-            };
-        setIsLoading(false);
+        };
     }
     
-    useEffect(() => {
-        getTokenInfo();
+    useEffect(async () => {
+        await setContext();
+        await getTokenInfo();
+        setIsLoading(false);
     }, []);
 
     if (isLoading) {
